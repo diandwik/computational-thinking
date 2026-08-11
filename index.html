@@ -340,6 +340,13 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
 #sidebar-scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:40;}
 #sidebar-scrim.show{display:block;}
 
+.modal-overlay{display:none; position:fixed; inset:0; background:rgba(10,13,25,.55); z-index:200; align-items:center; justify-content:center; padding:16px;}
+.modal-overlay.show{display:flex;}
+.modal-box{width:100%; max-width:340px; background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius-lg); padding:24px; box-shadow:var(--shadow-lg);}
+.modal-box h3{margin-bottom:6px;}
+
+.site-footer{text-align:center; padding:30px 0 10px; font-size:12px; color:var(--ink-faint); border-top:1px solid var(--line); margin-top:34px;}
+
 @media print{
   .sidebar, .topbar, .btn, #toast-wrap{display:none !important;}
   .page{display:none !important;}
@@ -351,6 +358,21 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
 <body>
 <div id="toast-wrap"></div>
 <div id="sidebar-scrim" onclick="toggleSidebar(false)"></div>
+<div id="teacher-login-modal" class="modal-overlay">
+  <div class="modal-box">
+    <h3>🔐 Teacher Login</h3>
+    <p>This area is for teachers only. Enter your credentials to view class progress.</p>
+    <label class="flabel">Username</label>
+    <input type="text" id="tlogin-user" autocomplete="off">
+    <label class="flabel" style="margin-top:10px;">Password</label>
+    <input type="password" id="tlogin-pass" autocomplete="off">
+    <div id="tlogin-error" style="color:var(--danger); font-size:12.5px; margin-top:8px; display:none;">Incorrect username or password.</div>
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <button class="btn soft block" onclick="closeTeacherLogin()">Cancel</button>
+      <button class="btn accent block" onclick="attemptTeacherLogin()">Login</button>
+    </div>
+  </div>
+</div>
 <div id="app">
   <aside class="sidebar" id="sidebar">
     <div class="brand">
@@ -364,13 +386,13 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <button class="navbtn" data-page="challenge"><span class="ic">🧩</span>CT Challenge</button>
       <button class="navbtn" data-page="project"><span class="ic">🛠️</span>Project</button>
       <button class="navbtn" data-page="certificate"><span class="ic">📜</span>Certificate</button>
-      <button class="navbtn" data-page="teacher"><span class="ic">🧑‍🏫</span>Teacher View</button>
     </div>
     <div class="sidebar-foot">
       <button class="theme-toggle" onclick="toggleTheme()">
         <span id="theme-label">🌤️ Light mode</span>
         <span class="switch" id="theme-switch"></span>
       </button>
+      <button class="navbtn" style="font-size:12px; color:var(--ink-faint);" onclick="openTeacherLogin()"><span class="ic">🔐</span>Teacher Login</button>
       <div style="font-size:10.5px; color:var(--ink-faint); text-align:center; padding-top:4px;">Progress saves automatically</div>
     </div>
   </aside>
@@ -398,7 +420,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
         <div class="hero">
           <span class="eyebrow">Mission Control</span>
           <h1>Welcome back, <span id="hero-name">Guest Student</span> 👋</h1>
-          <p class="lead">Computational Thinking is how programmers, scientists and problem-solvers everywhere tackle big, messy problems — by breaking them down, spotting patterns, keeping what matters, and building step-by-step solutions.</p>
+          <p class="lead">Computational Thinking is how programmers, scientists and problem-solvers everywhere tackle big, messy problems by breaking them down, spotting patterns, keeping what matters, and building step-by-step solutions.</p>
           <div class="hero-progress">
             <div class="pbar"><i id="hero-pbar" style="width:0%"></i></div>
             <span class="pct" id="hero-pct">0%</span>
@@ -426,7 +448,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
           </div>
           <div class="card">
             <h3>📍 Where you left off</h3>
-            <div id="continue-box"><p>You haven't started yet — jump into Level 1 to begin your journey!</p></div>
+            <div id="continue-box"><p>You haven't started yet , jump into Level 1 to begin your journey!</p></div>
             <button class="btn accent block" onclick="go('journey')">Continue Journey →</button>
           </div>
         </div>
@@ -436,7 +458,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-journey">
         <span class="eyebrow">Learning Journey</span>
         <h1>Your Computational Thinking Map</h1>
-        <p>Four chips, four powers. Complete each one — activity and quiz — to light up the trace and unlock your badge.</p>
+        <p>Four chips, four powers. Complete each one , activity and quiz , to light up the trace and unlock your badge.</p>
 
         <div class="map-wrap">
           <svg viewBox="0 0 900 190" style="width:100%; height:auto;" id="journey-svg"></svg>
@@ -473,7 +495,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-project">
         <span class="eyebrow">Capstone Project</span>
         <h1>🛠️ Design Your Own Computational Solution</h1>
-        <p>Choose a real problem from your school, home, or community. Fill in every stage below — this is your digital project template.</p>
+        <p>Choose a real problem from your school, home, or community. Fill in every stage below , this is your digital project template.</p>
         <div id="project-body"></div>
         <div class="card" style="margin-top:10px;">
           <h3>📋 Project Rubric</h3>
@@ -495,7 +517,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-teacher">
         <span class="eyebrow">Educator Tools</span>
         <h1>🧑‍🏫 Teacher Dashboard</h1>
-        <p>See how the whole class is progressing. This view reads shared progress snapshots saved by every student using this page on this device/browser network — <strong>student names and scores here are visible to anyone using this app</strong>.</p>
+        <p>See how the whole class is progressing. This view reads shared progress snapshots saved by every student using this page on this device/browser network , <strong>student names and scores here are visible to anyone using this app</strong>.</p>
         <div class="grid cols-4" id="teacher-stats" style="margin:18px 0;"></div>
         <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
           <button class="btn accent sm" onclick="loadTeacherData()">🔄 Refresh class data</button>
@@ -506,6 +528,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
         </div>
       </section>
 
+      <footer class="site-footer">Dian Dwi Kusuma &copy; 2026</footer>
     </div>
   </div>
 </div>
@@ -560,13 +583,13 @@ const L1_QUIZ = {
   questions:[
     {type:'mcq', diff:'easy', q:'What does Decomposition mean in Computational Thinking?',
      options:['Combining many problems into one giant problem','Breaking a complex problem into smaller, manageable parts','Ignoring details you find boring','Writing a program in one line of code'], correct:[1],
-     hint:'Think about the word "decompose" — to break down.'},
+     hint:'Think about the word "decompose" , to break down.'},
     {type:'multi', diff:'medium', q:'Which of these are genuine examples of decomposition? (choose all that apply)',
      options:['Splitting a school project into research, writing and design tasks','Noticing that Monday and Wednesday classes start at the same time','Breaking a recipe into an ingredient list and cooking steps','Drawing a simplified map that only shows major roads'],
-     correct:[0,2], hint:'Decomposition splits a task into parts — it is not about noticing similarities or simplifying.'},
+     correct:[0,2], hint:'Decomposition splits a task into parts , it is not about noticing similarities or simplifying.'},
     {type:'mcq', diff:'medium', q:'You are planning a class trip. Which is the WEAKEST decomposition?',
      options:['Transportation, Budget, Schedule, Permission Slips','Everything about the trip dumped into one giant to-do list','Food & Snacks, Emergency Contacts, Activities at destination','Pre-trip tasks vs. On-the-day tasks'],
-     correct:[1], hint:'Good decomposition creates separate, manageable groups — not one big pile.'},
+     correct:[1], hint:'Good decomposition creates separate, manageable groups , not one big pile.'},
     {type:'mcq', diff:'hard', q:'A team is building a school website. Which subtask list shows the best decomposition?',
      options:['"Make website" as a single task','Design (layout, colors) · Content (pages, text) · Development (coding) · Testing (checking links, forms)','Coding only, because everything else is not important','Just ask one person to do all of it at once'],
      correct:[1], hint:'Look for a list that separates the project by clearly different types of work.'},
@@ -594,7 +617,7 @@ const L2_QUIZ = {
     {type:'multi', diff:'medium', q:'Which situations involve pattern recognition? (choose all that apply)', options:['Noticing the canteen is busiest every day at 12:00–12:20','Noticing electricity bills spike every time the AC runs long','Making a to-do list for a science project','Choosing which details to leave off a simplified map'], correct:[0,1], hint:'Look for repeated behavior or trends over time.'},
     {type:'mcq', diff:'medium', q:'A shop notices that umbrella sales rise every time it rains. This is an example of...', options:['Abstraction','Algorithm design','Pattern Recognition','Decomposition'], correct:[2], hint:'Rain → more umbrella sales is a repeating relationship.'},
     {type:'mcq', diff:'hard', q:'What is the next number in: 5, 10, 20, 40, __?', options:['45','60','80','50'], correct:[2], hint:'Check what operation connects each pair of numbers.'},
-    {type:'multi', diff:'hard', q:'Why is pattern recognition useful for solving real problems? (choose all that apply)', options:['It helps predict what will likely happen next','It lets you reuse a solution that worked before on a similar problem','It always removes the need for an algorithm','It can reveal the busiest times, common mistakes, or repeated causes of a problem'], correct:[0,1,3], hint:'Patterns help you predict and reuse — but you still need an algorithm to act on them.'}
+    {type:'multi', diff:'hard', q:'Why is pattern recognition useful for solving real problems? (choose all that apply)', options:['It helps predict what will likely happen next','It lets you reuse a solution that worked before on a similar problem','It always removes the need for an algorithm','It can reveal the busiest times, common mistakes, or repeated causes of a problem'], correct:[0,1,3], hint:'Patterns help you predict and reuse , but you still need an algorithm to act on them.'}
   ]
 };
 
@@ -603,23 +626,23 @@ const L3_ACT = {
   scenario:'Your friend is visiting your city and only has 2 hours before their train leaves. You want to give them directions to the nearest famous landmark.',
   intro:'Tap each piece of information: keep it if it MATTERS for this specific goal, discard it if it is unnecessary detail.',
   items:[
-    {text:'The exact walking route with street names', keep:true, why:'Essential — they need to know exactly how to get there.'},
-    {text:'The landmark\'s opening and closing hours', keep:true, why:'Essential — no point going if it is closed.'},
+    {text:'The exact walking route with street names', keep:true, why:'Essential , they need to know exactly how to get there.'},
+    {text:'The landmark\'s opening and closing hours', keep:true, why:'Essential , no point going if it is closed.'},
     {text:'The history of who built the landmark 200 years ago', keep:false, why:'Interesting, but not needed to catch a train in 2 hours.'},
-    {text:'How long the walk takes', keep:true, why:'Essential — they must fit it inside 2 hours.'},
+    {text:'How long the walk takes', keep:true, why:'Essential , they must fit it inside 2 hours.'},
     {text:'The average annual rainfall of the city', keep:false, why:'Irrelevant to this specific goal.'},
     {text:'The nearest public restroom location', keep:true, why:'Practically useful for a short visit.'},
     {text:'The mayor\'s full biography', keep:false, why:'Not related to visiting a landmark quickly.'},
-    {text:'The cost of the train ticket they already bought', keep:false, why:'Already known/decided — not needed for this direction-giving task.'}
+    {text:'The cost of the train ticket they already bought', keep:false, why:'Already known/decided , not needed for this direction-giving task.'}
   ]
 };
 const L3_QUIZ = {
   questions:[
-    {type:'mcq', diff:'easy', q:'Abstraction means...', options:['Adding as much detail as possible','Keeping only the information that matters for your goal, and ignoring the rest','Breaking a task into smaller tasks','Finding repeating patterns'], correct:[1], hint:'Think about a subway map — simplified on purpose.'},
-    {type:'multi', diff:'medium', q:'Which of these are good examples of abstraction? (choose all that apply)', options:['A subway map that shows only stations and lines, not real geography','A shopping list that only lists items to buy, not their nutrition facts','A weather report that includes every historical weather record ever recorded','A class schedule that shows subject, time and room — not the teacher\'s home address'], correct:[0,1,3], hint:'Good abstraction removes noise that does not help the specific purpose.'},
+    {type:'mcq', diff:'easy', q:'Abstraction means...', options:['Adding as much detail as possible','Keeping only the information that matters for your goal, and ignoring the rest','Breaking a task into smaller tasks','Finding repeating patterns'], correct:[1], hint:'Think about a subway map , simplified on purpose.'},
+    {type:'multi', diff:'medium', q:'Which of these are good examples of abstraction? (choose all that apply)', options:['A subway map that shows only stations and lines, not real geography','A shopping list that only lists items to buy, not their nutrition facts','A weather report that includes every historical weather record ever recorded','A class schedule that shows subject, time and room , not the teacher\'s home address'], correct:[0,1,3], hint:'Good abstraction removes noise that does not help the specific purpose.'},
     {type:'mcq', diff:'medium', q:'A bus route map for passengers usually leaves out...', options:['Stop names','The order of stops','Exact road curvature and every building along the way','Line colors'], correct:[2], hint:'Passengers need to know stops and order, not architectural detail.'},
     {type:'mcq', diff:'hard', q:'When designing a school attendance app, which detail is LEAST important to track?', options:['Student name','Whether the student is present or absent','Date of the class','The student\'s favorite color'], correct:[3], hint:'Ask: does this detail help the app do its job?'},
-    {type:'multi', diff:'hard', q:'Why does abstraction matter when building software or solving problems? (choose all that apply)', options:['It reduces complexity so people can focus on what matters','It makes systems easier to understand and use','It guarantees the solution has zero errors','It helps designers decide what data actually needs to be collected'], correct:[0,1,3], hint:'Abstraction manages complexity — it does not guarantee perfection.'}
+    {type:'multi', diff:'hard', q:'Why does abstraction matter when building software or solving problems? (choose all that apply)', options:['It reduces complexity so people can focus on what matters','It makes systems easier to understand and use','It guarantees the solution has zero errors','It helps designers decide what data actually needs to be collected'], correct:[0,1,3], hint:'Abstraction manages complexity , it does not guarantee perfection.'}
   ]
 };
 
@@ -660,7 +683,7 @@ const CASE_STUDIES = [
   {id:'route', ic:'🚌', title:'Fastest Route to School', blurb:'Compare paths, traffic and time to choose the best way to travel.',
    decompQ:'List at least 3 separate factors that affect your route to school (e.g. distance, traffic, mode of transport).',
    patternQ:'What pattern have you noticed about traffic or travel time on different days/times?',
-   abstractQ:'Which details actually matter for choosing a route (distance, time, safety) — and which can you ignore (scenery, shop names)?',
+   abstractQ:'Which details actually matter for choosing a route (distance, time, safety) , and which can you ignore (scenery, shop names)?',
    algoQ:'Write 4–5 ordered steps someone should follow each morning to pick their fastest route.',
    model:'A strong answer separates factors (distance/traffic/transport), spots a real pattern (e.g. "traffic is worst 7:00–7:20"), keeps only decision-relevant details, and ends with clear numbered steps like: 1) Check traffic app 2) Compare 2 routes 3) Pick shortest predicted time 4) Leave with 10 min buffer.'},
   {id:'study', ic:'📚', title:'Study Schedule Planner', blurb:'Balance subjects, deadlines and rest into one working weekly plan.',
@@ -672,7 +695,7 @@ const CASE_STUDIES = [
   {id:'canteen', ic:'🍽️', title:'Canteen Queue System', blurb:'Design a fairer, faster way to serve students at lunchtime.',
    decompQ:'What are the separate parts of the canteen queue problem (ordering, payment, food prep, seating)?',
    patternQ:'When is the canteen busiest, and why does that pattern happen?',
-   abstractQ:'What matters most for a fair, fast queue system — and what can be ignored?',
+   abstractQ:'What matters most for a fair, fast queue system , and what can be ignored?',
    algoQ:'Write the steps for a new queue system (e.g. class-based time slots).',
    model:'Decompose into ordering/payment/prep/seating. Pattern: rush at 12:00–12:20 when most classes break together. Abstraction: focus on wait time & fairness, ignore menu design. Algorithm: staggered class entry times, numbered tickets, prep food in batches ahead of peak.'},
   {id:'waste', ic:'♻️', title:'Managing School Waste', blurb:'Reduce, sort and manage rubbish around the school more effectively.',
@@ -726,6 +749,42 @@ const CHALLENGE = {
   ]
 };
 
+/* ================= STORAGE BACKEND ================= */
+// Uses Claude's window.storage when available (inside Claude.ai).
+// Falls back to browser localStorage when hosted elsewhere (e.g. Moodle),
+// so the app keeps working outside the Claude environment.
+const LS_PREFIX = 'ctplatform::';
+const localStorageBackend = {
+  async get(key, shared){
+    const k = LS_PREFIX + (shared ? 'shared::' : '') + key;
+    const raw = localStorage.getItem(k);
+    if(raw === null) throw new Error('key not found');
+    return {key, value: raw, shared: !!shared};
+  },
+  async set(key, value, shared){
+    const k = LS_PREFIX + (shared ? 'shared::' : '') + key;
+    localStorage.setItem(k, value);
+    return {key, value, shared: !!shared};
+  },
+  async delete(key, shared){
+    const k = LS_PREFIX + (shared ? 'shared::' : '') + key;
+    localStorage.removeItem(k);
+    return {key, deleted: true, shared: !!shared};
+  },
+  async list(prefix, shared){
+    const base = LS_PREFIX + (shared ? 'shared::' : '');
+    const full = base + (prefix || '');
+    const keys = [];
+    for(let i=0;i<localStorage.length;i++){
+      const k = localStorage.key(i);
+      if(k && k.startsWith(full)) keys.push(k.slice(base.length));
+    }
+    return {keys, prefix, shared: !!shared};
+  }
+};
+const usingClaudeStorage = (typeof window !== 'undefined' && window.storage && typeof window.storage.get === 'function');
+const storageAPI = usingClaudeStorage ? window.storage : localStorageBackend;
+
 /* ================= STATE ================= */
 let state = {
   studentName:'Guest Student', xp:0, streak:1, lastActiveDay:null,
@@ -738,9 +797,9 @@ let currentLevel = 1;
 let currentSub = 'concept';
 
 async function saveState(){
-  try{ await window.storage.set('ct-progress-'+slug(state.studentName), JSON.stringify(state)); }catch(e){ console.warn('save failed', e); }
+  try{ await storageAPI.set('ct-progress-'+slug(state.studentName), JSON.stringify(state)); }catch(e){ console.warn('save failed', e); }
   try{
-    await window.storage.set('student:'+slug(state.studentName), JSON.stringify({
+    await storageAPI.set('student:'+slug(state.studentName), JSON.stringify({
       name:state.studentName, xp:state.xp, rank:rankName(state.xp),
       levels: Object.values(state.levelProgress).filter(v=>v>=100).length,
       cases: Object.keys(state.caseStudiesDone).length,
@@ -751,7 +810,7 @@ async function saveState(){
 }
 async function loadState(name){
   try{
-    const r = await window.storage.get('ct-progress-'+slug(name));
+    const r = await storageAPI.get('ct-progress-'+slug(name));
     if(r && r.value){ const loaded = JSON.parse(r.value); state = Object.assign(state, loaded); }
   }catch(e){ /* no saved data yet */ }
 }
@@ -759,7 +818,8 @@ function slug(s){ return (s||'guest').toLowerCase().replace(/[^a-z0-9]+/g,'-').s
 
 /* ================= INIT ================= */
 async function init(){
-  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+  document.querySelectorAll('.navbtn').forEach(b=>{ if(b.dataset.page) b.addEventListener('click',()=>go(b.dataset.page)); });
+  document.getElementById('tlogin-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') attemptTeacherLogin(); });
   await loadState(state.studentName);
   applyTheme();
   renderAll();
@@ -771,8 +831,35 @@ function renderAll(){
   renderCaseStudies(); renderChallenge(); renderProject(); renderCertificate();
 }
 
+/* ================= TEACHER LOGIN ================= */
+let teacherAuthed = false;
+const TEACHER_CREDS = {user:'diandk', pass:'teacherICT27!'};
+function openTeacherLogin(){
+  document.getElementById('tlogin-error').style.display='none';
+  document.getElementById('tlogin-user').value='';
+  document.getElementById('tlogin-pass').value='';
+  document.getElementById('teacher-login-modal').classList.add('show');
+  toggleSidebar(false);
+  setTimeout(()=>document.getElementById('tlogin-user').focus(),50);
+}
+function closeTeacherLogin(){
+  document.getElementById('teacher-login-modal').classList.remove('show');
+}
+function attemptTeacherLogin(){
+  const u = document.getElementById('tlogin-user').value.trim();
+  const p = document.getElementById('tlogin-pass').value;
+  if(u===TEACHER_CREDS.user && p===TEACHER_CREDS.pass){
+    teacherAuthed = true;
+    closeTeacherLogin();
+    go('teacher');
+  } else {
+    document.getElementById('tlogin-error').style.display='block';
+  }
+}
+
 /* ================= NAV ================= */
 function go(page){
+  if(page==='teacher' && !teacherAuthed){ openTeacherLogin(); return; }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
@@ -804,7 +891,7 @@ function editName(){
 function rankName(xp){ let r = RANKS[0].name; for(const x of RANKS){ if(xp>=x.min) r = x.name; } return r; }
 function addXP(n, reason){
   state.xp += n; state.activitiesCompleted++;
-  toast('⚡ +'+n+' XP — '+reason);
+  toast('⚡ +'+n+' XP , '+reason);
   bumpStreak(); checkBadges(); updateTopbar(); renderDashboard(); saveState();
 }
 function bumpStreak(){
@@ -872,7 +959,7 @@ function renderDashboard(){
   const nextLv = [1,2,3,4].find(l=>state.levelProgress[l]<100);
   if(nextLv){
     const L = LEVELS[nextLv];
-    cont.innerHTML = `<p><strong>${L.icon} ${L.name}</strong> — ${state.levelProgress[nextLv]}% complete.<br>${L.tagline}</p>`;
+    cont.innerHTML = `<p><strong>${L.icon} ${L.name}</strong> , ${state.levelProgress[nextLv]}% complete.<br>${L.tagline}</p>`;
   } else {
     cont.innerHTML = `<p>🎉 All four levels complete! Head to the <strong>Case Studies</strong>, <strong>Challenge</strong> or <strong>Project</strong> to keep going.</p>`;
   }
@@ -957,9 +1044,9 @@ function completeLevelPiece(lv, piece){
   const totalPieces = Object.keys(state.levelPieces[lv]).length;
   const doneCount = Object.values(state.levelPieces[lv]).filter(Boolean).length;
   state.levelProgress[lv] = Math.round((doneCount/totalPieces)*100);
-  addXP(piece==='quiz'?20:15, LEVELS[lv].name+' — '+piece);
+  addXP(piece==='quiz'?20:15, LEVELS[lv].name+' , '+piece);
   renderJourneyMap(); renderLevelContent();
-  if(state.levelProgress[lv]>=100){ toast('✅ Level '+lv+' — '+LEVELS[lv].name+' complete!'); }
+  if(state.levelProgress[lv]>=100){ toast('✅ Level '+lv+' , '+LEVELS[lv].name+' complete!'); }
 }
 function conceptHTML(lv){
   const map = {
@@ -971,40 +1058,40 @@ function conceptHTML(lv){
         <strong>Everyday example:</strong> Cooking fried rice (nasi goreng) is really several smaller jobs: prepare ingredients → cook the rice → fry the seasonings → combine everything → plate it. Nobody thinks "cook fried rice" as one single unbreakable action.
        </div>
        <div class="example-box" style="border-color:var(--decomp);">
-        <strong>In computing:</strong> A big app like an online shop is decomposed into smaller systems: product catalog, shopping cart, payment, and delivery tracking — each built and tested separately.
+        <strong>In computing:</strong> A big app like an online shop is decomposed into smaller systems: product catalog, shopping cart, payment, and delivery tracking , each built and tested separately.
        </div>`,
     2:`<div class="concept-box" style="background:var(--pattern-soft); color:var(--pattern-ink);">
         <h3 style="color:inherit;">🔍 What is Pattern Recognition?</h3>
-        <p style="color:inherit;">Pattern Recognition means noticing similarities, trends, or things that repeat — in numbers, images, schedules, or everyday events — so you can predict what happens next or reuse a known solution.</p>
+        <p style="color:inherit;">Pattern Recognition means noticing similarities, trends, or things that repeat , in numbers, images, schedules, or everyday events , so you can predict what happens next or reuse a known solution.</p>
        </div>
        <div class="example-box" style="border-color:var(--pattern);">
-        <strong>Number pattern:</strong> 2, 4, 6, 8, ... — each number increases by 2.
+        <strong>Number pattern:</strong> 2, 4, 6, 8, ... , each number increases by 2.
        </div>
        <div class="example-box" style="border-color:var(--pattern);">
         <strong>Everyday pattern:</strong> The canteen queue is always longest right at 12:00, and shorter by 12:20. Once you see that pattern, you can plan to arrive later.
        </div>
        <div class="example-box" style="border-color:var(--pattern);">
-        <strong>Data pattern:</strong> Electricity bills spike every month the air conditioner runs longer — a pattern that helps explain cost.
+        <strong>Data pattern:</strong> Electricity bills spike every month the air conditioner runs longer , a pattern that helps explain cost.
        </div>`,
     3:`<div class="concept-box" style="background:var(--abstract-soft); color:var(--abstract-ink);">
         <h3 style="color:inherit;">🎯 What is Abstraction?</h3>
         <p style="color:inherit;">Abstraction means removing information that is not important for your current goal, and keeping only what truly matters. It reduces complexity so you can focus on the essentials.</p>
        </div>
        <div class="example-box" style="border-color:var(--abstract);">
-        <strong>Map example:</strong> A subway map does not show real streets, buildings or distances accurately — it only shows stations, lines and connections, because that's all a rider needs.
+        <strong>Map example:</strong> A subway map does not show real streets, buildings or distances accurately , it only shows stations, lines and connections, because that's all a rider needs.
        </div>
        <div class="example-box" style="border-color:var(--abstract);">
-        <strong>Shopping list:</strong> You write "milk, eggs, bread" — not the brand history or nutrition label of every product. Only what you need to buy matters.
+        <strong>Shopping list:</strong> You write "milk, eggs, bread" , not the brand history or nutrition label of every product. Only what you need to buy matters.
        </div>
        <div class="example-box" style="border-color:var(--abstract);">
-        <strong>School schedule:</strong> Shows subject, time, and room — not the teacher's biography or the classroom's paint color.
+        <strong>School schedule:</strong> Shows subject, time, and room , not the teacher's biography or the classroom's paint color.
        </div>`,
     4:`<div class="concept-box" style="background:var(--algo-soft); color:var(--algo-ink);">
         <h3 style="color:inherit;">⚙️ What is an Algorithm?</h3>
         <p style="color:inherit;">An algorithm is a set of clear, ordered steps that leads to a solution or completes a task. Good algorithms are precise, in the right order, and eventually finish.</p>
        </div>
        <div class="example-box" style="border-color:var(--algo);">
-        <strong>Everyday algorithm — Making tea:</strong><br>
+        <strong>Everyday algorithm , Making tea:</strong><br>
         1. Boil water &nbsp;2. Put a tea bag in a cup &nbsp;3. Pour hot water over the tea bag &nbsp;4. Wait 3 minutes &nbsp;5. Remove the tea bag &nbsp;6. Add sugar if desired
        </div>
        <div class="example-box" style="border-color:var(--algo);">
@@ -1194,7 +1281,7 @@ function checkSeq(){
   const correct = ids.every((id,i)=> id===L4_SEQ.correctOrder[i]);
   const res = document.getElementById('seq-result');
   res.style.color = correct ? 'var(--success)':'var(--danger)';
-  res.textContent = correct ? '✅ Perfect order!' : '❌ Not quite in order yet — try again.';
+  res.textContent = correct ? '✅ Perfect order!' : '❌ Not quite in order yet , try again.';
   if(correct) completeLevelPiece(4,'seq');
 }
 
@@ -1231,7 +1318,7 @@ function checkFlowchart(){
   const correct = chainTypes.length===L4_FC.correctChain.length && chainTypes.every((t,i)=>t===L4_FC.correctChain[i]);
   const res = document.getElementById('fc-result');
   res.style.color = correct?'var(--success)':'var(--danger)';
-  res.textContent = correct ? '✅ Correct flow! '+L4_FC.explanation : '❌ Not quite — remember: Start → Input → Decision → Process → End.';
+  res.textContent = correct ? '✅ Correct flow! '+L4_FC.explanation : '❌ Not quite , remember: Start → Input → Decision → Process → End.';
   if(correct) completeLevelPiece(4,'fc');
 }
 
@@ -1275,7 +1362,7 @@ function renderQuiz(body, quiz, onAllComplete){
     });
     const fb = document.getElementById('fb-'+qi);
     fb.className = 'feedback show ' + (right?'good':'bad');
-    fb.textContent = right ? '✅ Correct! Nice thinking.' : '❌ Not quite — correct answer(s) highlighted in green. Try the next question!';
+    fb.textContent = right ? '✅ Correct! Nice thinking.' : '❌ Not quite , correct answer(s) highlighted in green. Try the next question!';
     answered[qi] = right;
     document.getElementById('quiz-score').textContent = `Answered: ${Object.keys(answered).length}/${quiz.questions.length} · Correct: ${Object.values(answered).filter(Boolean).length}`;
     if(Object.keys(answered).length === quiz.questions.length){
@@ -1392,7 +1479,7 @@ function finishChallenge(){
   const wasDone = state.challengeDone;
   state.challengeDone = true;
   document.getElementById('ch-dot-final').classList.add('done');
-  if(!wasDone){ addXP(50, 'CT Challenge complete'); toast('🚀 Challenge complete — great problem solving!'); }
+  if(!wasDone){ addXP(50, 'CT Challenge complete'); toast('🚀 Challenge complete , great problem solving!'); }
   else saveState();
   checkBadges();
 }
@@ -1434,7 +1521,7 @@ function saveProject(submit){
     if(filled < PROJECT_FIELDS.length){ toast('Fill in all 9 sections before submitting.'); return; }
     const wasDone = state.projectSubmitted;
     state.projectSubmitted = true;
-    if(!wasDone){ addXP(100, 'Capstone Project submitted'); toast('🎉 Project submitted — amazing work!'); }
+    if(!wasDone){ addXP(100, 'Capstone Project submitted'); toast('🎉 Project submitted , amazing work!'); }
     checkBadges(); renderCertificate();
   } else {
     toast('Draft saved.'); saveState();
@@ -1480,7 +1567,7 @@ function renderCertificate(){
     <h2>Certificate of Achievement</h2>
     <p style="color:var(--ink-faint); font-size:12.5px;">This certifies that</p>
     <div class="name">${state.studentName}</div>
-    <p>has successfully completed all four levels of<br><strong>Computational Thinking</strong> — Decomposition, Pattern Recognition, Abstraction, and Algorithms —<br>demonstrating critical thinking, creativity, and problem-solving skills.</p>
+    <p>has successfully completed all four levels of<br><strong>Computational Thinking</strong> , Decomposition, Pattern Recognition, Abstraction, and Algorithms ,<br>demonstrating critical thinking, creativity, and problem-solving skills.</p>
     <div class="cert-badges">${state.badges.map(id=>{const b=BADGES.find(x=>x.id===id); return `<span title="${b.name}" style="font-size:26px;">${b.em}</span>`;}).join('')}</div>
     <p style="font-size:12px; color:var(--ink-faint);">Total XP earned: ${state.xp} · Rank: ${rankName(state.xp)} · Date: ${new Date().toLocaleDateString()}</p>
   </div>
@@ -1497,11 +1584,11 @@ async function loadTeacherData(){
   const statsEl = document.getElementById('teacher-stats');
   tbl.innerHTML = '<tr><th>Loading…</th></tr>';
   try{
-    const list = await window.storage.list('student:', true);
+    const list = await storageAPI.list('student:', true);
     const keys = (list && list.keys) || [];
     const rows = [];
     for(const k of keys){
-      try{ const r = await window.storage.get(k, true); if(r && r.value) rows.push(JSON.parse(r.value)); }catch(e){}
+      try{ const r = await storageAPI.get(k, true); if(r && r.value) rows.push(JSON.parse(r.value)); }catch(e){}
     }
     window.__teacherRows = rows;
     if(rows.length===0){
@@ -1523,7 +1610,7 @@ async function loadTeacherData(){
         <td><strong>${r.name}</strong></td><td>${r.rank}</td><td>${r.xp}</td>
         <td><span class="mini-bar"><i style="width:${(r.levels/4)*100}%"></i></span>${r.levels}/4</td>
         <td><span class="mini-bar"><i style="width:${(r.cases/8)*100}%"></i></span>${r.cases}/8</td>
-        <td>${r.challenge?'✅':'—'}</td><td>${r.project?'✅':'—'}</td><td>${r.badges}/8</td>
+        <td>${r.challenge?'✅':','}</td><td>${r.project?'✅':','}</td><td>${r.badges}/8</td>
         <td>${new Date(r.updated).toLocaleDateString()}</td>
       </tr>`).join('');
   }catch(e){
