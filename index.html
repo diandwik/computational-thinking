@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Computational Thinking · Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#F6F8FC; --bg-alt:#FFFFFF; --bg-raised:#FFFFFF;
+  --ink:#14192E; --ink-soft:#4B5578; --ink-faint:#8891B5;
+  --line:#E1E6F2; --line-strong:#C7CFE8;
+  --decomp:#FF7A59; --decomp-soft:#FFE7DE; --decomp-ink:#9A3A1F;
+  --pattern:#12B3A3; --pattern-soft:#D8F6F1; --pattern-ink:#0B6E64;
+  --abstract:#8B5CF6; --abstract-soft:#EFE7FF; --abstract-ink:#5B33B8;
+  --algo:#3A7BFF; --algo-soft:#E3ECFF; --algo-ink:#1F4FBF;
+  --xp:#FFB703; --xp-ink:#8A5B00;
+  --success:#2FBF71; --success-soft:#DEFBEA;
+  --danger:#EF476F; --danger-soft:#FFE3EA;
+  --radius-sm:10px; --radius-md:16px; --radius-lg:24px;
+  --shadow-sm:0 1px 2px rgba(20,25,46,.06), 0 1px 1px rgba(20,25,46,.04);
+  --shadow-md:0 8px 24px rgba(20,25,46,.08);
+  --shadow-lg:0 16px 40px rgba(20,25,46,.14);
+  --font-display:'Space Grotesk', sans-serif;
+  --font-body:'Inter', sans-serif;
+  --font-mono:'JetBrains Mono', monospace;
+}
+[data-theme="dark"]{
+  --bg:#0D1120; --bg-alt:#161B2E; --bg-raised:#1C2238;
+  --ink:#EDEFFA; --ink-soft:#B7BEDD; --ink-faint:#7580AA;
+  --line:#2A3152; --line-strong:#3A4270;
+  --decomp-soft:#3A2418; --decomp-ink:#FFB199;
+  --pattern-soft:#0F332F; --pattern-ink:#6BE8D9;
+  --abstract-soft:#2C2050; --abstract-ink:#C8AEFF;
+  --algo-soft:#182A4E; --algo-ink:#9DBCFF;
+  --xp-ink:#FFD166;
+  --success-soft:#123825; --danger-soft:#3A1826;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow-md:0 8px 24px rgba(0,0,0,.35);
+  --shadow-lg:0 16px 40px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased; transition:background .3s,color .3s;
+  min-height:100vh;
+}
+h1,h2,h3,h4{font-family:var(--font-display); margin:0 0 .4em; letter-spacing:-.01em;}
+p{line-height:1.6; color:var(--ink-soft); margin:.3em 0 1em;}
+code, .mono{font-family:var(--font-mono);}
+button{font-family:var(--font-body); cursor:pointer;}
+::selection{background:var(--algo); color:#fff;}
+a{color:inherit;}
+
+/* ============ LAYOUT SHELL ============ */
+#app{display:flex; min-height:100vh;}
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--bg-alt); border-right:1px solid var(--line);
+  display:flex; flex-direction:column; padding:20px 14px; position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:6px 8px 20px;}
+.brand-mark{
+  width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--algo),var(--abstract));
+  display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--font-display); font-weight:700; font-size:16px;
+  box-shadow:var(--shadow-sm);
+}
+.brand-text{font-family:var(--font-display); font-weight:700; font-size:15px; line-height:1.2;}
+.brand-text span{display:block; font-family:var(--font-body); font-weight:500; font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.08em;}
+.navlist{display:flex; flex-direction:column; gap:3px; margin-top:6px;}
+.navbtn{
+  display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:var(--radius-sm);
+  border:none; background:transparent; color:var(--ink-soft); font-size:14px; font-weight:600; text-align:left; width:100%;
+  transition:.15s;
+}
+.navbtn .ic{width:20px; text-align:center; font-size:16px;}
+.navbtn:hover{background:var(--bg); color:var(--ink);}
+.navbtn.active{background:var(--algo-soft); color:var(--algo-ink);}
+.sidebar-foot{margin-top:auto; padding-top:14px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:8px;}
+.theme-toggle{
+  display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:var(--radius-sm);
+  background:var(--bg); border:1px solid var(--line); font-size:12.5px; font-weight:600; color:var(--ink-soft);
+}
+.switch{width:36px; height:20px; border-radius:20px; background:var(--line-strong); position:relative; border:none; padding:0; flex-shrink:0;}
+.switch::after{content:'';position:absolute; width:16px; height:16px; border-radius:50%; background:#fff; top:2px; left:2px; transition:.2s; box-shadow:var(--shadow-sm);}
+.switch.on{background:var(--algo);}
+.switch.on::after{left:18px;}
+
+.main{flex:1; min-width:0;}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; padding:14px 28px;
+  border-bottom:1px solid var(--line); background:var(--bg-alt); position:sticky; top:0; z-index:20;
+  gap:12px; flex-wrap:wrap;
+}
+.hamburger{display:none; background:none; border:none; font-size:20px; color:var(--ink);}
+.topbar-stats{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+.pill{
+  display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:99px; background:var(--bg);
+  border:1px solid var(--line); font-size:12.5px; font-weight:700; color:var(--ink-soft);
+}
+.pill.xp{color:var(--xp-ink); background:linear-gradient(90deg,var(--decomp-soft),var(--xp)15%,transparent); border-color:transparent; background-color:color-mix(in srgb, var(--xp) 16%, var(--bg));}
+.pill.streak{color:var(--decomp-ink); background-color:color-mix(in srgb, var(--decomp) 14%, var(--bg));}
+.pill.rank{color:var(--algo-ink); background-color:color-mix(in srgb, var(--algo) 12%, var(--bg));}
+.avatar-chip{display:flex; align-items:center; gap:8px; padding:5px 10px 5px 5px; border-radius:99px; border:1px solid var(--line); background:var(--bg); cursor:pointer;}
+.avatar-chip .av{width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,var(--pattern),var(--algo)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; font-size:12px;}
+.avatar-chip span{font-size:12.5px; font-weight:600;}
+
+.content{padding:26px 30px 70px; max-width:1180px; margin:0 auto;}
+.page{display:none; animation:fadein .35s ease;}
+.page.active{display:block;}
+@keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+/* ============ GENERIC UI ============ */
+.eyebrow{font-size:11.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:6px; display:block;}
+.card{background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius-md); padding:20px; box-shadow:var(--shadow-sm);}
+.grid{display:grid; gap:16px;}
+.grid.cols-2{grid-template-columns:1fr 1fr;}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.grid.cols-4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr 1fr;}}
+@media(max-width:640px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr;}}
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px; padding:11px 18px; border-radius:12px; border:none;
+  font-weight:700; font-size:13.5px; transition:.15s; font-family:var(--font-body);
+}
+.btn.primary{background:var(--ink); color:var(--bg-alt);}
+.btn.primary:hover{transform:translateY(-1px); box-shadow:var(--shadow-md);}
+[data-theme="dark"] .btn.primary{background:#fff; color:#0D1120;}
+.btn.accent{background:var(--algo); color:#fff;}
+.btn.accent:hover{background:var(--algo-ink);}
+.btn.outline{background:transparent; border:1.5px solid var(--line-strong); color:var(--ink);}
+.btn.outline:hover{border-color:var(--ink);}
+.btn.soft{background:var(--bg); border:1px solid var(--line); color:var(--ink-soft);}
+.btn:disabled{opacity:.45; cursor:not-allowed; transform:none !important;}
+.btn.block{width:100%; justify-content:center;}
+.btn.sm{padding:7px 12px; font-size:12px; border-radius:9px;}
+
+.badge-tag{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:3px 9px; border-radius:99px;}
+.badge-tag.easy{background:var(--success-soft); color:var(--success);}
+.badge-tag.medium{background:var(--decomp-soft); color:var(--decomp-ink);}
+.badge-tag.hard{background:var(--danger-soft); color:var(--danger);}
+
+/* progress bar */
+.pbar{height:10px; border-radius:99px; background:var(--line); overflow:hidden; position:relative;}
+.pbar > i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--algo),var(--pattern)); transition:width .5s cubic-bezier(.4,0,.2,1);}
+
+/* ============ DASHBOARD ============ */
+.hero{
+  border-radius:var(--radius-lg); padding:30px 32px; margin-bottom:22px; position:relative; overflow:hidden;
+  background:radial-gradient(120% 140% at 100% 0%, var(--algo-soft), transparent 60%), var(--bg-alt);
+  border:1px solid var(--line);
+}
+.hero h1{font-size:30px;}
+.hero .lead{font-size:15px; max-width:480px;}
+.hero-progress{display:flex; align-items:center; gap:16px; margin-top:18px; max-width:420px;}
+.hero-progress .pbar{flex:1;}
+.hero-progress .pct{font-family:var(--font-display); font-weight:700; font-size:15px; min-width:42px;}
+.hero-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;}
+
+.stat-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;}
+@media(max-width:760px){.stat-strip{grid-template-columns:1fr 1fr;}}
+.statcard{background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius-md); padding:16px 18px;}
+.statcard .num{font-family:var(--font-display); font-size:26px; font-weight:700;}
+.statcard .lbl{font-size:12px; color:var(--ink-faint); font-weight:600;}
+
+.badge-row{display:flex; flex-wrap:wrap; gap:12px;}
+.badge-pod{
+  width:104px; text-align:center; padding:14px 8px; border-radius:var(--radius-md); border:1px solid var(--line); background:var(--bg-alt);
+  opacity:.4; filter:grayscale(1);
+}
+.badge-pod.earned{opacity:1; filter:none; box-shadow:var(--shadow-sm); border-color:var(--xp);}
+.badge-pod .em{font-size:28px; display:block; margin-bottom:6px;}
+.badge-pod .nm{font-size:10.5px; font-weight:700; line-height:1.3; color:var(--ink-soft);}
+
+/* ============ JOURNEY MAP (signature element) ============ */
+.map-wrap{background:var(--bg-alt); border:1px solid var(--line); border-radius:var(--radius-lg); padding:26px; margin-bottom:24px;}
+.chip-node{cursor:pointer;}
+.chip-node rect.body{transition:.2s;}
+.chip-node:hover rect.body{filter:brightness(1.05);}
+.chip-label{font-family:var(--font-display); font-weight:700; pointer-events:none;}
+.chip-sub{font-family:var(--font-body); font-weight:600; pointer-events:none;}
+
+.level-tabs{display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 18px;}
+.level-tab{padding:9px 15px; border-radius:11px; border:1px solid var(--line); background:var(--bg-alt); font-weight:700; font-size:13px; color:var(--ink-soft);}
+.level-tab.on{border-color:transparent; color:#fff;}
+.level-tab[data-lv="1"].on{background:var(--decomp);}
+.level-tab[data-lv="2"].on{background:var(--pattern);}
+.level-tab[data-lv="3"].on{background:var(--abstract);}
+.level-tab[data-lv="4"].on{background:var(--algo);}
+
+.subtabs{display:flex; gap:4px; border-bottom:2px solid var(--line); margin-bottom:20px; overflow-x:auto;}
+.subtab{padding:10px 16px; font-size:13px; font-weight:700; color:var(--ink-faint); border-bottom:2px solid transparent; margin-bottom:-2px; white-space:nowrap; background:none; border-top:none; border-left:none; border-right:none;}
+.subtab.on{color:var(--ink);}
+
+.concept-box{border-radius:var(--radius-md); padding:20px; margin-bottom:16px;}
+.example-box{border-left:4px solid; padding:14px 18px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; background:var(--bg); margin:14px 0;}
+
+/* drag & drop */
+.dnd-pool{display:flex; flex-wrap:wrap; gap:10px; padding:14px; background:var(--bg); border:1px dashed var(--line-strong); border-radius:var(--radius-md); min-height:56px; margin-bottom:16px;}
+.dnd-item{
+  padding:9px 14px; background:var(--bg-alt); border:1.5px solid var(--line-strong); border-radius:10px; font-weight:600; font-size:13px;
+  cursor:grab; box-shadow:var(--shadow-sm); user-select:none;
+}
+.dnd-item.dragging{opacity:.35;}
+.dnd-item.correct-flash{border-color:var(--success); background:var(--success-soft);}
+.dnd-item.wrong-flash{border-color:var(--danger); background:var(--danger-soft);}
+.dnd-zones{display:grid; grid-template-columns:repeat(2,1fr); gap:14px;}
+@media(max-width:640px){.dnd-zones{grid-template-columns:1fr;}}
+.dnd-zone{border:2px dashed var(--line-strong); border-radius:var(--radius-md); padding:12px; min-height:110px; background:var(--bg-alt);}
+.dnd-zone.hover{border-color:var(--algo); background:var(--algo-soft);}
+.dnd-zone h4{font-size:13px; margin-bottom:8px; color:var(--ink-soft);}
+.dnd-zone .items{display:flex; flex-wrap:wrap; gap:6px; min-height:20px;}
+
+/* sequence list (algorithm ordering) */
+.seq-list{list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;}
+.seq-item{
+  display:flex; align-items:center; gap:10px; padding:11px 14px; background:var(--bg-alt); border:1.5px solid var(--line-strong);
+  border-radius:10px; cursor:grab; font-weight:600; font-size:13.5px;
+}
+.seq-item .num{width:22px; height:22px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--ink-faint); flex-shrink:0;}
+.seq-item.dragging{opacity:.35;}
+
+/* quiz */
+.qcard{border:1px solid var(--line); border-radius:var(--radius-md); padding:18px 20px; margin-bottom:14px; background:var(--bg-alt);}
+.qcard .qhead{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px;}
+.qopt{
+  display:flex; align-items:center; gap:10px; padding:10px 13px; border:1.5px solid var(--line); border-radius:10px; margin-bottom:8px;
+  font-size:13.5px; font-weight:500; background:var(--bg);
+}
+.qopt.sel{border-color:var(--algo); background:var(--algo-soft);}
+.qopt.ok{border-color:var(--success); background:var(--success-soft);}
+.qopt.bad{border-color:var(--danger); background:var(--danger-soft);}
+.qopt input{accent-color:var(--algo);}
+.feedback{font-size:13px; font-weight:600; padding:10px 14px; border-radius:10px; margin-top:8px; display:none;}
+.feedback.show{display:block;}
+.feedback.good{background:var(--success-soft); color:var(--success);}
+.feedback.bad{background:var(--danger-soft); color:var(--danger);}
+.hint-box{font-size:12.5px; background:var(--decomp-soft); color:var(--decomp-ink); padding:9px 12px; border-radius:9px; margin-top:8px; display:none;}
+.hint-box.show{display:block;}
+
+/* pattern game grid */
+.pattern-seq{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:16px 0; font-family:var(--font-display); font-size:26px;}
+.pattern-seq .cell{width:52px; height:52px; border-radius:12px; background:var(--bg); border:1.5px solid var(--line-strong); display:flex; align-items:center; justify-content:center; font-weight:700;}
+.pattern-seq .cell.blank{border-style:dashed; color:var(--ink-faint);}
+.pattern-choices{display:flex; gap:10px; flex-wrap:wrap;}
+.pattern-choices button{width:52px; height:52px; border-radius:12px; font-family:var(--font-display); font-size:20px; font-weight:700; border:1.5px solid var(--line-strong); background:var(--bg-alt);}
+.pattern-choices button:hover{border-color:var(--pattern);}
+
+/* flowchart builder */
+.fc-palette{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;}
+.fc-piece{display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:10px; border:1.5px solid var(--line-strong); background:var(--bg-alt); font-size:12.5px; font-weight:700; cursor:pointer;}
+.fc-piece:hover{border-color:var(--algo);}
+.fc-chain{display:flex; flex-direction:column; align-items:center; gap:4px; min-height:120px; padding:16px; background:var(--bg); border:1px dashed var(--line-strong); border-radius:var(--radius-md);}
+.fc-shape{padding:9px 18px; font-size:12.5px; font-weight:700; text-align:center; position:relative;}
+.fc-shape.start{background:var(--success-soft); color:var(--success); border-radius:99px; border:1.5px solid var(--success);}
+.fc-shape.process{background:var(--algo-soft); color:var(--algo-ink); border:1.5px solid var(--algo);}
+.fc-shape.io{background:var(--abstract-soft); color:var(--abstract-ink); border:1.5px solid var(--abstract); clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);}
+.fc-shape.decision{background:var(--decomp-soft); color:var(--decomp-ink); border:1.5px solid var(--decomp); transform:scale(1.02);}
+.fc-shape.end{background:var(--danger-soft); color:var(--danger); border-radius:99px; border:1.5px solid var(--danger);}
+.fc-arrow{font-size:16px; color:var(--ink-faint);}
+.legend-row{display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 20px;}
+.legend-item{display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:var(--ink-soft);}
+
+/* case studies & challenge */
+.cs-card{border:1px solid var(--line); border-radius:var(--radius-md); background:var(--bg-alt); padding:18px; cursor:pointer; transition:.15s;}
+.cs-card:hover{transform:translateY(-2px); box-shadow:var(--shadow-md);}
+.cs-card .ic{font-size:24px;}
+.cs-card.done{border-color:var(--success);}
+.stepper{display:flex; gap:6px; margin-bottom:20px; flex-wrap:wrap;}
+.step-dot{flex:1; min-width:70px; text-align:center; padding:8px 6px; border-radius:9px; font-size:11px; font-weight:700; background:var(--bg); color:var(--ink-faint); border:1px solid var(--line);}
+.step-dot.on{background:var(--ink); color:var(--bg-alt);}
+[data-theme="dark"] .step-dot.on{background:#fff; color:#0D1120;}
+.step-dot.done{background:var(--success-soft); color:var(--success); border-color:var(--success);}
+textarea, input[type=text], input[type=number]{
+  width:100%; padding:11px 13px; border-radius:10px; border:1.5px solid var(--line); background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); font-size:13.5px; resize:vertical;
+}
+textarea:focus, input:focus{outline:2px solid var(--algo); outline-offset:1px; border-color:var(--algo);}
+label.flabel{font-size:12.5px; font-weight:700; color:var(--ink-soft); display:block; margin-bottom:6px;}
+.model-answer{background:var(--pattern-soft); color:var(--pattern-ink); padding:12px 14px; border-radius:10px; font-size:13px; margin-top:10px; display:none;}
+.model-answer.show{display:block;}
+
+/* project template */
+.proj-section{border:1px solid var(--line); border-radius:var(--radius-md); padding:18px; margin-bottom:14px; background:var(--bg-alt);}
+.proj-section h3{font-size:14.5px; display:flex; align-items:center; gap:8px;}
+.proj-num{width:24px; height:24px; border-radius:50%; background:var(--algo); color:#fff; font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;}
+
+/* teacher */
+.tbl-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-md); background:var(--bg-alt);}
+table{width:100%; border-collapse:collapse; font-size:13px; min-width:640px;}
+th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); white-space:nowrap;}
+th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spacing:.06em;}
+.mini-bar{width:80px; height:6px; border-radius:99px; background:var(--line); display:inline-block; overflow:hidden; vertical-align:middle; margin-right:6px;}
+.mini-bar i{display:block; height:100%; background:var(--algo);}
+
+/* rubric */
+.rubric-wrap{overflow-x:auto;}
+.rubric-wrap table{min-width:760px;}
+.rubric-wrap td{white-space:normal; font-size:12px; color:var(--ink-soft); min-width:150px;}
+
+/* certificate */
+.cert{
+  border:3px solid var(--algo); border-radius:var(--radius-lg); padding:48px 40px; text-align:center; position:relative;
+  background:radial-gradient(circle at 50% 0%, var(--algo-soft), transparent 60%), var(--bg-alt);
+}
+.cert::before{content:'';position:absolute; inset:10px; border:1px solid var(--line-strong); border-radius:calc(var(--radius-lg) - 8px); pointer-events:none;}
+.cert h2{font-size:14px; letter-spacing:.2em; text-transform:uppercase; color:var(--ink-faint);}
+.cert .name{font-size:34px; margin:14px 0; color:var(--algo-ink);}
+.cert-badges{display:flex; justify-content:center; gap:16px; margin:18px 0; flex-wrap:wrap;}
+
+/* toast */
+#toast-wrap{position:fixed; top:16px; right:16px; z-index:999; display:flex; flex-direction:column; gap:8px;}
+.toast{
+  background:var(--ink); color:var(--bg-alt); padding:12px 18px; border-radius:12px; font-size:13px; font-weight:700;
+  box-shadow:var(--shadow-lg); display:flex; align-items:center; gap:8px; animation:toastin .3s ease;
+}
+[data-theme="dark"] .toast{background:#fff; color:#0D1120;}
+@keyframes toastin{from{opacity:0; transform:translateY(-8px);} to{opacity:1; transform:translateY(0);}}
+
+.hub-tile{border:1px solid var(--line); border-radius:var(--radius-md); background:var(--bg-alt); padding:20px; cursor:pointer; transition:.15s;}
+.hub-tile:hover{transform:translateY(-3px); box-shadow:var(--shadow-md);}
+.hub-tile .ic{font-size:28px; margin-bottom:8px; display:block;}
+
+.checklist-item{display:flex; align-items:flex-start; gap:10px; padding:11px 13px; border:1.5px solid var(--line); border-radius:10px; margin-bottom:8px; font-size:13.5px; cursor:pointer; background:var(--bg);}
+.checklist-item.picked{border-color:var(--algo); background:var(--algo-soft);}
+.checklist-item.ok{border-color:var(--success); background:var(--success-soft);}
+.checklist-item.bad{border-color:var(--danger); background:var(--danger-soft);}
+
+@media(max-width:880px){
+  .sidebar{position:fixed; left:-260px; top:0; z-index:50; transition:.25s; box-shadow:var(--shadow-lg);}
+  .sidebar.open{left:0;}
+  .hamburger{display:block;}
+  .content{padding:18px 16px 60px;}
+  .grid.cols-2, .grid.cols-3, .grid.cols-4{grid-template-columns:1fr;}
+  .hero{padding:22px;}
+}
+#sidebar-scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:40;}
+#sidebar-scrim.show{display:block;}
+
+@media print{
+  .sidebar, .topbar, .btn, #toast-wrap{display:none !important;}
+  .page{display:none !important;}
+  .page.print-target{display:block !important;}
+  body{background:#fff;}
+}
+</style>
+</head>
+<body>
+<div id="toast-wrap"></div>
+<div id="sidebar-scrim" onclick="toggleSidebar(false)"></div>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">CT</div>
+      <div class="brand-text">Computational<br>Thinking<span>Informatics · Fase D</span></div>
+    </div>
+    <div class="navlist">
+      <button class="navbtn" data-page="dashboard"><span class="ic">🏠</span>Dashboard</button>
+      <button class="navbtn" data-page="journey"><span class="ic">🗺️</span>Learning Journey</button>
+      <button class="navbtn" data-page="casestudies"><span class="ic">🌍</span>Case Studies</button>
+      <button class="navbtn" data-page="challenge"><span class="ic">🧩</span>CT Challenge</button>
+      <button class="navbtn" data-page="project"><span class="ic">🛠️</span>Project</button>
+      <button class="navbtn" data-page="certificate"><span class="ic">📜</span>Certificate</button>
+      <button class="navbtn" data-page="teacher"><span class="ic">🧑‍🏫</span>Teacher View</button>
+    </div>
+    <div class="sidebar-foot">
+      <button class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-label">🌤️ Light mode</span>
+        <span class="switch" id="theme-switch"></span>
+      </button>
+      <div style="font-size:10.5px; color:var(--ink-faint); text-align:center; padding-top:4px;">Progress saves automatically</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <button class="hamburger" onclick="toggleSidebar(true)">☰</button>
+        <div class="avatar-chip" onclick="editName()">
+          <span class="av" id="av-initial">S</span>
+          <span id="student-name-label">Guest Student</span>
+        </div>
+      </div>
+      <div class="topbar-stats">
+        <span class="pill xp">⚡ <span id="xp-count">0</span> XP</span>
+        <span class="pill streak">🔥 <span id="streak-count">0</span> day streak</span>
+        <span class="pill rank">🎖️ <span id="rank-label">Rookie Thinker</span></span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ===================== DASHBOARD ===================== -->
+      <section class="page" id="page-dashboard">
+        <div class="hero">
+          <span class="eyebrow">Mission Control</span>
+          <h1>Welcome back, <span id="hero-name">Guest Student</span> 👋</h1>
+          <p class="lead">Computational Thinking is how programmers, scientists and problem-solvers everywhere tackle big, messy problems — by breaking them down, spotting patterns, keeping what matters, and building step-by-step solutions.</p>
+          <div class="hero-progress">
+            <div class="pbar"><i id="hero-pbar" style="width:0%"></i></div>
+            <span class="pct" id="hero-pct">0%</span>
+          </div>
+          <div class="hero-actions">
+            <button class="btn primary" onclick="go('journey')">🚀 Start Learning</button>
+            <button class="btn outline" onclick="go('challenge')">🧩 Challenge</button>
+            <button class="btn outline" onclick="go('journey');setTimeout(()=>openLevel(2),50)">🎮 Game</button>
+            <button class="btn outline" onclick="go('project')">🛠️ Project</button>
+          </div>
+        </div>
+
+        <div class="stat-strip">
+          <div class="statcard"><div class="num" id="stat-activities">0</div><div class="lbl">Activities completed</div></div>
+          <div class="statcard"><div class="num" id="stat-levels">0/4</div><div class="lbl">Journey levels done</div></div>
+          <div class="statcard"><div class="num" id="stat-cases">0/8</div><div class="lbl">Case studies solved</div></div>
+          <div class="statcard"><div class="num" id="stat-badges">0/8</div><div class="lbl">Badges earned</div></div>
+        </div>
+
+        <div class="grid cols-2" style="align-items:start;">
+          <div class="card">
+            <h3>🏅 Badge Cabinet</h3>
+            <p style="margin-bottom:14px;">Earn badges by mastering each element of Computational Thinking.</p>
+            <div class="badge-row" id="badge-row"></div>
+          </div>
+          <div class="card">
+            <h3>📍 Where you left off</h3>
+            <div id="continue-box"><p>You haven't started yet — jump into Level 1 to begin your journey!</p></div>
+            <button class="btn accent block" onclick="go('journey')">Continue Journey →</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== JOURNEY ===================== -->
+      <section class="page" id="page-journey">
+        <span class="eyebrow">Learning Journey</span>
+        <h1>Your Computational Thinking Map</h1>
+        <p>Four chips, four powers. Complete each one — activity and quiz — to light up the trace and unlock your badge.</p>
+
+        <div class="map-wrap">
+          <svg viewBox="0 0 900 190" style="width:100%; height:auto;" id="journey-svg"></svg>
+        </div>
+
+        <div class="level-tabs" id="level-tabs">
+          <button class="level-tab" data-lv="1" onclick="openLevel(1)">① Decomposition</button>
+          <button class="level-tab" data-lv="2" onclick="openLevel(2)">② Pattern Recognition</button>
+          <button class="level-tab" data-lv="3" onclick="openLevel(3)">③ Abstraction</button>
+          <button class="level-tab" data-lv="4" onclick="openLevel(4)">④ Algorithms</button>
+        </div>
+
+        <div id="level-content"></div>
+      </section>
+
+      <!-- ===================== CASE STUDIES ===================== -->
+      <section class="page" id="page-casestudies">
+        <span class="eyebrow">Real-World Case Studies</span>
+        <h1>Put all four powers to work</h1>
+        <p>Pick a real situation and walk through Decomposition → Pattern Recognition → Abstraction → Algorithm, just like a real problem-solver.</p>
+        <div class="grid cols-4" id="cs-grid" style="margin-bottom:24px;"></div>
+        <div id="cs-detail"></div>
+      </section>
+
+      <!-- ===================== CHALLENGE ===================== -->
+      <section class="page" id="page-challenge">
+        <span class="eyebrow">Computational Thinking Challenge</span>
+        <h1>🧩 Problem-Based Learning Challenge</h1>
+        <p>Work through the full CT problem-solving pipeline on one meaty problem, then defend your chosen solution.</p>
+        <div id="challenge-body"></div>
+      </section>
+
+      <!-- ===================== PROJECT ===================== -->
+      <section class="page" id="page-project">
+        <span class="eyebrow">Capstone Project</span>
+        <h1>🛠️ Design Your Own Computational Solution</h1>
+        <p>Choose a real problem from your school, home, or community. Fill in every stage below — this is your digital project template.</p>
+        <div id="project-body"></div>
+        <div class="card" style="margin-top:10px;">
+          <h3>📋 Project Rubric</h3>
+          <p>Your teacher will use this rubric to assess your project.</p>
+          <div class="rubric-wrap">
+            <table id="rubric-table"></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== CERTIFICATE ===================== -->
+      <section class="page" id="page-certificate">
+        <span class="eyebrow">Recognition</span>
+        <h1>📜 Your Certificate</h1>
+        <div id="cert-body"></div>
+      </section>
+
+      <!-- ===================== TEACHER ===================== -->
+      <section class="page" id="page-teacher">
+        <span class="eyebrow">Educator Tools</span>
+        <h1>🧑‍🏫 Teacher Dashboard</h1>
+        <p>See how the whole class is progressing. This view reads shared progress snapshots saved by every student using this page on this device/browser network — <strong>student names and scores here are visible to anyone using this app</strong>.</p>
+        <div class="grid cols-4" id="teacher-stats" style="margin:18px 0;"></div>
+        <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+          <button class="btn accent sm" onclick="loadTeacherData()">🔄 Refresh class data</button>
+          <button class="btn outline sm" onclick="exportCSV()">⬇️ Export CSV</button>
+        </div>
+        <div class="tbl-wrap">
+          <table id="teacher-table"></table>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= CONTENT DATA ================= */
+const LEVELS = {
+  1:{key:'decomp', name:'Decomposition', color:'var(--decomp)', soft:'var(--decomp-soft)', ink:'var(--decomp-ink)', icon:'🧩',
+     tagline:'Breaking a big, messy problem into smaller, manageable pieces.'},
+  2:{key:'pattern', name:'Pattern Recognition', color:'var(--pattern)', soft:'var(--pattern-soft)', ink:'var(--pattern-ink)', icon:'🔍',
+     tagline:'Spotting similarities, trends and repetition to work smarter.'},
+  3:{key:'abstract', name:'Abstraction', color:'var(--abstract)', soft:'var(--abstract-soft)', ink:'var(--abstract-ink)', icon:'🎯',
+     tagline:'Keeping only the details that matter for the problem at hand.'},
+  4:{key:'algo', name:'Algorithms', color:'var(--algo)', soft:'var(--algo-soft)', ink:'var(--algo-ink)', icon:'⚙️',
+     tagline:'Writing clear, ordered steps that lead to a solution.'}
+};
+const BADGES = [
+  {id:'decomp', em:'🏆', name:'Decomposition Master', req:'Complete Level 1'},
+  {id:'pattern', em:'🔍', name:'Pattern Detective', req:'Complete Level 2'},
+  {id:'abstract', em:'🎯', name:'Abstraction Expert', req:'Complete Level 3'},
+  {id:'algo', em:'⚙️', name:'Algorithm Designer', req:'Complete Level 4'},
+  {id:'thinker', em:'🧠', name:'Computational Thinker', req:'Complete all 4 levels'},
+  {id:'solver', em:'🚀', name:'Problem Solver', req:'Finish the CT Challenge'},
+  {id:'explorer', em:'🌟', name:'Case Study Explorer', req:'Solve 4+ case studies'},
+  {id:'certified', em:'📜', name:'Certified Thinker', req:'Finish the capstone project'}
+];
+const RANKS = [
+  {min:0, name:'Rookie Thinker'}, {min:150, name:'Explorer'}, {min:350, name:'Strategist'},
+  {min:600, name:'Innovator'}, {min:900, name:'Computational Master'}
+];
+
+// ---- Level 1: Decomposition ----
+const L1_DND = {
+  title:'Sort the parts of "Organize a School Class Trip"',
+  intro:'Drag each item below into the group it belongs to. Real decomposition means every part has a clear home.',
+  zones:[
+    {id:'transport', label:'🚌 Transportation'}, {id:'budget', label:'💰 Budget'},
+    {id:'schedule', label:'🗓️ Schedule'}, {id:'safety', label:'🛡️ Safety & Permission'}
+  ],
+  items:[
+    {id:'i1', text:'Book a bus and driver', zone:'transport'},
+    {id:'i2', text:'Estimate ticket + fuel cost', zone:'budget'},
+    {id:'i3', text:'Decide departure & return time', zone:'schedule'},
+    {id:'i4', text:'Collect parent permission slips', zone:'safety'},
+    {id:'i5', text:'Set price per student', zone:'budget'},
+    {id:'i6', text:'Plan the return route', zone:'transport'},
+    {id:'i7', text:'List emergency contacts', zone:'safety'},
+    {id:'i8', text:'Build a minute-by-minute itinerary', zone:'schedule'}
+  ]
+};
+const L1_QUIZ = {
+  questions:[
+    {type:'mcq', diff:'easy', q:'What does Decomposition mean in Computational Thinking?',
+     options:['Combining many problems into one giant problem','Breaking a complex problem into smaller, manageable parts','Ignoring details you find boring','Writing a program in one line of code'], correct:[1],
+     hint:'Think about the word "decompose" — to break down.'},
+    {type:'multi', diff:'medium', q:'Which of these are genuine examples of decomposition? (choose all that apply)',
+     options:['Splitting a school project into research, writing and design tasks','Noticing that Monday and Wednesday classes start at the same time','Breaking a recipe into an ingredient list and cooking steps','Drawing a simplified map that only shows major roads'],
+     correct:[0,2], hint:'Decomposition splits a task into parts — it is not about noticing similarities or simplifying.'},
+    {type:'mcq', diff:'medium', q:'You are planning a class trip. Which is the WEAKEST decomposition?',
+     options:['Transportation, Budget, Schedule, Permission Slips','Everything about the trip dumped into one giant to-do list','Food & Snacks, Emergency Contacts, Activities at destination','Pre-trip tasks vs. On-the-day tasks'],
+     correct:[1], hint:'Good decomposition creates separate, manageable groups — not one big pile.'},
+    {type:'mcq', diff:'hard', q:'A team is building a school website. Which subtask list shows the best decomposition?',
+     options:['"Make website" as a single task','Design (layout, colors) · Content (pages, text) · Development (coding) · Testing (checking links, forms)','Coding only, because everything else is not important','Just ask one person to do all of it at once'],
+     correct:[1], hint:'Look for a list that separates the project by clearly different types of work.'},
+    {type:'multi', diff:'hard', q:'Which statements about decomposition are TRUE? (choose all that apply)',
+     options:['Decomposed parts should be small enough to solve individually','Decomposition always requires a computer','Different people or teams can work on different decomposed parts at the same time','Decomposition is only useful for computer programming'],
+     correct:[0,2], hint:'Decomposition is a general thinking skill, useful far beyond just coding.'}
+  ]
+};
+
+// ---- Level 2: Pattern Recognition ----
+const L2_FIND = {
+  intro:'Look for the rule, then pick what comes next.',
+  rounds:[
+    {diff:'easy', seq:['2','4','6','8','?'], choices:['9','10','12','7'], correct:'10', rule:'Add 2 each time.'},
+    {diff:'easy', seq:['🔺','🔵','🔺','🔵','?'], choices:['🔺','🔵','🟩','⭐'], correct:'🔺', rule:'The shapes simply alternate.'},
+    {diff:'medium', seq:['1','1','2','3','5','?'], choices:['6','7','8','9'], correct:'8', rule:'Fibonacci: each number is the sum of the two before it.'},
+    {diff:'medium', seq:['A','C','E','G','?'], choices:['H','I','J','K'], correct:'I', rule:'Skip one letter each time (A,B,C,D,E,F,G,H,I...).'},
+    {diff:'hard', seq:['3','6','12','24','?'], choices:['30','36','48','28'], correct:'48', rule:'Each number doubles.'},
+    {diff:'hard', seq:['Mon 7am','Wed 7am','Fri 7am','?'], choices:['Sat 7am','Sun 9am','Mon 7am next week','Tue 7am'], correct:'Mon 7am next week', rule:'Class happens every Mon/Wed/Fri at 7am, so it repeats the next Monday.'}
+  ]
+};
+const L2_QUIZ = {
+  questions:[
+    {type:'mcq', diff:'easy', q:'Pattern Recognition mainly helps you...', options:['Delete unnecessary steps','Notice similarities, trends or repetition in information','Draw a flowchart','Split a task into smaller tasks'], correct:[1], hint:'It is about "recognizing" something that repeats.'},
+    {type:'multi', diff:'medium', q:'Which situations involve pattern recognition? (choose all that apply)', options:['Noticing the canteen is busiest every day at 12:00–12:20','Noticing electricity bills spike every time the AC runs long','Making a to-do list for a science project','Choosing which details to leave off a simplified map'], correct:[0,1], hint:'Look for repeated behavior or trends over time.'},
+    {type:'mcq', diff:'medium', q:'A shop notices that umbrella sales rise every time it rains. This is an example of...', options:['Abstraction','Algorithm design','Pattern Recognition','Decomposition'], correct:[2], hint:'Rain → more umbrella sales is a repeating relationship.'},
+    {type:'mcq', diff:'hard', q:'What is the next number in: 5, 10, 20, 40, __?', options:['45','60','80','50'], correct:[2], hint:'Check what operation connects each pair of numbers.'},
+    {type:'multi', diff:'hard', q:'Why is pattern recognition useful for solving real problems? (choose all that apply)', options:['It helps predict what will likely happen next','It lets you reuse a solution that worked before on a similar problem','It always removes the need for an algorithm','It can reveal the busiest times, common mistakes, or repeated causes of a problem'], correct:[0,1,3], hint:'Patterns help you predict and reuse — but you still need an algorithm to act on them.'}
+  ]
+};
+
+// ---- Level 3: Abstraction ----
+const L3_ACT = {
+  scenario:'Your friend is visiting your city and only has 2 hours before their train leaves. You want to give them directions to the nearest famous landmark.',
+  intro:'Tap each piece of information: keep it if it MATTERS for this specific goal, discard it if it is unnecessary detail.',
+  items:[
+    {text:'The exact walking route with street names', keep:true, why:'Essential — they need to know exactly how to get there.'},
+    {text:'The landmark\'s opening and closing hours', keep:true, why:'Essential — no point going if it is closed.'},
+    {text:'The history of who built the landmark 200 years ago', keep:false, why:'Interesting, but not needed to catch a train in 2 hours.'},
+    {text:'How long the walk takes', keep:true, why:'Essential — they must fit it inside 2 hours.'},
+    {text:'The average annual rainfall of the city', keep:false, why:'Irrelevant to this specific goal.'},
+    {text:'The nearest public restroom location', keep:true, why:'Practically useful for a short visit.'},
+    {text:'The mayor\'s full biography', keep:false, why:'Not related to visiting a landmark quickly.'},
+    {text:'The cost of the train ticket they already bought', keep:false, why:'Already known/decided — not needed for this direction-giving task.'}
+  ]
+};
+const L3_QUIZ = {
+  questions:[
+    {type:'mcq', diff:'easy', q:'Abstraction means...', options:['Adding as much detail as possible','Keeping only the information that matters for your goal, and ignoring the rest','Breaking a task into smaller tasks','Finding repeating patterns'], correct:[1], hint:'Think about a subway map — simplified on purpose.'},
+    {type:'multi', diff:'medium', q:'Which of these are good examples of abstraction? (choose all that apply)', options:['A subway map that shows only stations and lines, not real geography','A shopping list that only lists items to buy, not their nutrition facts','A weather report that includes every historical weather record ever recorded','A class schedule that shows subject, time and room — not the teacher\'s home address'], correct:[0,1,3], hint:'Good abstraction removes noise that does not help the specific purpose.'},
+    {type:'mcq', diff:'medium', q:'A bus route map for passengers usually leaves out...', options:['Stop names','The order of stops','Exact road curvature and every building along the way','Line colors'], correct:[2], hint:'Passengers need to know stops and order, not architectural detail.'},
+    {type:'mcq', diff:'hard', q:'When designing a school attendance app, which detail is LEAST important to track?', options:['Student name','Whether the student is present or absent','Date of the class','The student\'s favorite color'], correct:[3], hint:'Ask: does this detail help the app do its job?'},
+    {type:'multi', diff:'hard', q:'Why does abstraction matter when building software or solving problems? (choose all that apply)', options:['It reduces complexity so people can focus on what matters','It makes systems easier to understand and use','It guarantees the solution has zero errors','It helps designers decide what data actually needs to be collected'], correct:[0,1,3], hint:'Abstraction manages complexity — it does not guarantee perfection.'}
+  ]
+};
+
+// ---- Level 4: Algorithms ----
+const L4_SEQ = {
+  title:'Put the steps of "Making a Peanut Butter Sandwich" in the correct order',
+  correctOrder:['s1','s2','s3','s4','s5'],
+  steps:[
+    {id:'s1', text:'Get two slices of bread'},
+    {id:'s2', text:'Spread peanut butter on one slice'},
+    {id:'s3', text:'Place the second slice on top'},
+    {id:'s4', text:'Cut the sandwich in half (optional)'},
+    {id:'s5', text:'Serve and enjoy'}
+  ]
+};
+const L4_FC = {
+  title:'Build a flowchart: "Is the number even or odd?"',
+  correctChain:['start','io','decision','process','end'],
+  explanation:'Start → Input the number → Decision (is it divisible by 2?) → Process (label it Even/Odd) → End.',
+  palette:[
+    {type:'start', label:'Start'}, {type:'io', label:'Input number'},
+    {type:'decision', label:'number % 2 == 0 ?'}, {type:'process', label:'Print "Even" or "Odd"'},
+    {type:'end', label:'End'}
+  ]
+};
+const L4_QUIZ = {
+  questions:[
+    {type:'mcq', diff:'easy', q:'An algorithm is best described as...', options:['A random guess','A set of clear, ordered steps to solve a problem or complete a task','A picture of a computer','A type of quiz'], correct:[1], hint:'Think recipe: a numbered list of steps.'},
+    {type:'mcq', diff:'easy', q:'In flowchart symbols, which shape represents a decision?', options:['Rectangle','Oval','Diamond','Parallelogram'], correct:[2], hint:'The shape with four equal sides, turned like a kite.'},
+    {type:'multi', diff:'medium', q:'Which of these are true about a good algorithm? (choose all that apply)', options:['Its steps should be in a clear order','It should eventually stop / reach an end','Every step should be understandable and unambiguous','It must always use a computer to run'], correct:[0,1,2], hint:'Algorithms exist in cooking and daily life too, not just in code.'},
+    {type:'mcq', diff:'medium', q:'What flowchart symbol marks the beginning and end of a process?', options:['Rectangle','Parallelogram','Oval','Diamond'], correct:[2], hint:'Rounded shape used for Start/End.'},
+    {type:'mcq', diff:'hard', q:'Which pseudocode correctly checks if a number N is positive?', options:['IF N > 0 THEN PRINT "Positive"','PRINT "Positive" THEN IF N > 0','N > 0 PRINT "Positive" IF','FOR N > 0 PRINT "Positive"'], correct:[0], hint:'A decision uses IF ... THEN structure.'}
+  ]
+};
+
+// ---- Case Studies ----
+const CASE_STUDIES = [
+  {id:'route', ic:'🚌', title:'Fastest Route to School', blurb:'Compare paths, traffic and time to choose the best way to travel.',
+   decompQ:'List at least 3 separate factors that affect your route to school (e.g. distance, traffic, mode of transport).',
+   patternQ:'What pattern have you noticed about traffic or travel time on different days/times?',
+   abstractQ:'Which details actually matter for choosing a route (distance, time, safety) — and which can you ignore (scenery, shop names)?',
+   algoQ:'Write 4–5 ordered steps someone should follow each morning to pick their fastest route.',
+   model:'A strong answer separates factors (distance/traffic/transport), spots a real pattern (e.g. "traffic is worst 7:00–7:20"), keeps only decision-relevant details, and ends with clear numbered steps like: 1) Check traffic app 2) Compare 2 routes 3) Pick shortest predicted time 4) Leave with 10 min buffer.'},
+  {id:'study', ic:'📚', title:'Study Schedule Planner', blurb:'Balance subjects, deadlines and rest into one working weekly plan.',
+   decompQ:'Break "plan my study week" into parts (e.g. subjects, deadlines, free time, sleep).',
+   patternQ:'Which days or hours are usually free vs. busy in a typical student week?',
+   abstractQ:'What information is essential for a study schedule (deadline dates, difficulty) vs. unnecessary (what you ate for lunch)?',
+   algoQ:'Write ordered steps for building a weekly study schedule.',
+   model:'Good decomposition splits by subject/deadline/rest. A pattern might be "weekends have more free hours." Abstraction keeps deadlines & difficulty, drops irrelevant details. Algorithm: 1) List subjects & deadlines 2) Rank by urgency 3) Assign time blocks 4) Add breaks 5) Review weekly.'},
+  {id:'canteen', ic:'🍽️', title:'Canteen Queue System', blurb:'Design a fairer, faster way to serve students at lunchtime.',
+   decompQ:'What are the separate parts of the canteen queue problem (ordering, payment, food prep, seating)?',
+   patternQ:'When is the canteen busiest, and why does that pattern happen?',
+   abstractQ:'What matters most for a fair, fast queue system — and what can be ignored?',
+   algoQ:'Write the steps for a new queue system (e.g. class-based time slots).',
+   model:'Decompose into ordering/payment/prep/seating. Pattern: rush at 12:00–12:20 when most classes break together. Abstraction: focus on wait time & fairness, ignore menu design. Algorithm: staggered class entry times, numbered tickets, prep food in batches ahead of peak.'},
+  {id:'waste', ic:'♻️', title:'Managing School Waste', blurb:'Reduce, sort and manage rubbish around the school more effectively.',
+   decompQ:'Break down "school waste problem" into parts (types of waste, collection points, disposal, recycling).',
+   patternQ:'What pattern do you notice about when/where the most waste is produced?',
+   abstractQ:'What information is essential for designing a waste system vs. unnecessary detail?',
+   algoQ:'Write steps students should follow to sort and dispose of waste correctly.',
+   model:'Decompose by waste type/location/disposal method. Pattern: most waste near the canteen after lunch. Abstraction: focus on waste type and volume, not brand of packaging. Algorithm: 1) Identify waste type 2) Check labeled bin 3) Sort into correct bin 4) Report full bins to staff.'},
+  {id:'menu', ic:'🥗', title:'Menu Planning from Data', blurb:'Use survey data to design a canteen menu students actually like.',
+   decompQ:'What separate pieces of data would you need to plan a good menu (preferences, nutrition, cost, allergies)?',
+   patternQ:'If you surveyed students, what pattern might appear in favorite foods?',
+   abstractQ:'Which data matters most for menu decisions, and which can be set aside?',
+   algoQ:'Write the steps to turn survey data into a finished weekly menu.',
+   model:'Decompose data into preference/nutrition/cost/allergy info. Pattern: certain dishes are popular every Friday. Abstraction: prioritize popularity + nutrition + budget, ignore rarely-picked items. Algorithm: 1) Collect survey 2) Rank dishes 3) Balance nutrition 4) Check budget 5) Publish weekly menu.'},
+  {id:'roster', ic:'🧹', title:'Class Duty Roster (Piket)', blurb:'Create a fair, rotating cleaning schedule for the whole class.',
+   decompQ:'Break "class duty roster" into parts (tasks, students, days, rotation rule).',
+   patternQ:'What pattern keeps a roster fair over many weeks (e.g. rotation order)?',
+   abstractQ:'What information must the roster show, and what can be left out?',
+   algoQ:'Write the steps to generate a fair weekly duty roster.',
+   model:'Decompose into task list, student list, days, rotation rule. Pattern: rotate names in a fixed cycle so everyone gets equal turns. Abstraction: keep name+day+task, drop unrelated info. Algorithm: 1) List students 2) List tasks per day 3) Assign in rotating order 4) Repeat cycle next week.'},
+  {id:'electric', ic:'💡', title:'Electricity Usage Pattern', blurb:'Find out when and why the school uses the most electricity.',
+   decompQ:'Break down "school electricity usage" into parts (rooms, devices, time of day, season).',
+   patternQ:'What pattern would you expect in electricity use across a school day?',
+   abstractQ:'Which factors matter most for reducing electricity use, and which are minor?',
+   algoQ:'Write steps for a plan to reduce unnecessary electricity use.',
+   model:'Decompose by room/device/time. Pattern: usage peaks during hot afternoons (AC) and empty rooms with lights left on. Abstraction: focus on high-impact devices (AC, lights), ignore rarely-used ones. Algorithm: 1) Track usage by room 2) Identify high-use times 3) Set switch-off rules 4) Monitor monthly.'},
+  {id:'transport', ic:'🚦', title:'Transportation Strategy', blurb:'Plan how students get to and from a school event efficiently.',
+   decompQ:'Break "transport strategy for an event" into parts (number of students, vehicles, routes, timing).',
+   patternQ:'What pattern helps you predict how many vehicles or trips you will need?',
+   abstractQ:'What details are essential to plan transport, and what can be ignored?',
+   algoQ:'Write the ordered steps to build a transport plan for the event.',
+   model:'Decompose into headcount, vehicles, routes, timing. Pattern: one bus fits ~40 students, so trips scale with headcount. Abstraction: keep headcount/capacity/time, ignore unrelated event details. Algorithm: 1) Count students 2) Divide by bus capacity 3) Assign routes 4) Set pickup times 5) Confirm with drivers.'}
+];
+
+// ---- Challenge ----
+const CHALLENGE = {
+  problem:'Your school library gets crowded and noisy during lunch break, and students often cannot find the books they want in time before class starts.',
+  stages:[
+    {key:'analyze', label:'Analyze', prompt:'Describe the problem in your own words. Who is affected, and why does it matter?'},
+    {key:'decompose', label:'Decompose', prompt:'Break the library problem into at least 3 smaller parts (e.g. finding books, checkout speed, noise, seating).'},
+    {key:'pattern', label:'Find Pattern', prompt:'What pattern have you noticed about when the library gets crowded or which books are hardest to find?'},
+    {key:'abstract', label:'Abstract', prompt:'What information matters most to solve this (e.g. book location, peak times) and what can you ignore?'},
+    {key:'design', label:'Design Algorithm', prompt:'Write clear, ordered steps for your proposed solution.'},
+    {key:'test', label:'Test', prompt:'How would you try out your solution on a small scale first, before rolling it out to the whole school?'},
+    {key:'evaluate', label:'Evaluate', prompt:'How would you know if your solution actually worked? What would you measure?'}
+  ],
+  solutionOptions:[
+    'A: A color-coded shelf and floor-sign system so books are easy to find',
+    'B: A simple digital catalog kiosk students can search before walking to the shelf',
+    'C: A staggered visiting schedule so not all classes arrive at the same time'
+  ]
+};
+
+/* ================= STATE ================= */
+let state = {
+  studentName:'Guest Student', xp:0, streak:1, lastActiveDay:null,
+  badges:[], levelProgress:{1:0,2:0,3:0,4:0},
+  levelPieces:{1:{dnd:false,quiz:false},2:{game:false,quiz:false},3:{act:false,quiz:false},4:{seq:false,fc:false,quiz:false}},
+  caseStudiesDone:{}, challengeDone:false, projectData:{}, projectSubmitted:false,
+  darkMode:false, activitiesCompleted:0
+};
+let currentLevel = 1;
+let currentSub = 'concept';
+
+async function saveState(){
+  try{ await window.storage.set('ct-progress-'+slug(state.studentName), JSON.stringify(state)); }catch(e){ console.warn('save failed', e); }
+  try{
+    await window.storage.set('student:'+slug(state.studentName), JSON.stringify({
+      name:state.studentName, xp:state.xp, rank:rankName(state.xp),
+      levels: Object.values(state.levelProgress).filter(v=>v>=100).length,
+      cases: Object.keys(state.caseStudiesDone).length,
+      challenge: state.challengeDone, project: state.projectSubmitted,
+      badges: state.badges.length, updated: new Date().toISOString()
+    }), true);
+  }catch(e){ console.warn('shared save failed', e); }
+}
+async function loadState(name){
+  try{
+    const r = await window.storage.get('ct-progress-'+slug(name));
+    if(r && r.value){ const loaded = JSON.parse(r.value); state = Object.assign(state, loaded); }
+  }catch(e){ /* no saved data yet */ }
+}
+function slug(s){ return (s||'guest').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,60) || 'guest'; }
+
+/* ================= INIT ================= */
+async function init(){
+  document.querySelectorAll('.navbtn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
+  await loadState(state.studentName);
+  applyTheme();
+  renderAll();
+  go('dashboard');
+  toast('👋 Welcome! Your progress saves automatically as you learn.');
+}
+function renderAll(){
+  updateTopbar(); renderDashboard(); renderJourneyMap(); openLevel(currentLevel, true);
+  renderCaseStudies(); renderChallenge(); renderProject(); renderCertificate();
+}
+
+/* ================= NAV ================= */
+function go(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.page===page));
+  window.scrollTo({top:0,behavior:'smooth'});
+  toggleSidebar(false);
+  if(page==='teacher') loadTeacherData();
+}
+function toggleSidebar(open){
+  document.getElementById('sidebar').classList.toggle('open', open);
+  document.getElementById('sidebar-scrim').classList.toggle('show', open);
+}
+function toggleTheme(){
+  state.darkMode = !state.darkMode; applyTheme(); saveState();
+}
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', state.darkMode ? 'dark':'light');
+  document.getElementById('theme-switch').classList.toggle('on', state.darkMode);
+  document.getElementById('theme-label').textContent = state.darkMode ? '🌙 Dark mode' : '🌤️ Light mode';
+}
+function editName(){
+  const n = prompt('What is your name?', state.studentName);
+  if(n && n.trim()){
+    state.studentName = n.trim();
+    loadState(state.studentName).then(()=>{ renderAll(); saveState(); });
+  }
+}
+
+/* ================= GAMIFICATION HELPERS ================= */
+function rankName(xp){ let r = RANKS[0].name; for(const x of RANKS){ if(xp>=x.min) r = x.name; } return r; }
+function addXP(n, reason){
+  state.xp += n; state.activitiesCompleted++;
+  toast('⚡ +'+n+' XP — '+reason);
+  bumpStreak(); checkBadges(); updateTopbar(); renderDashboard(); saveState();
+}
+function bumpStreak(){
+  const today = new Date().toDateString();
+  if(state.lastActiveDay !== today){
+    state.streak = state.lastActiveDay ? state.streak + 1 : 1;
+    state.lastActiveDay = today;
+  }
+}
+function awardBadge(id){
+  if(!state.badges.includes(id)){
+    state.badges.push(id);
+    const b = BADGES.find(x=>x.id===id);
+    toast('🏅 Badge earned: '+b.em+' '+b.name+'!');
+  }
+}
+function checkBadges(){
+  if(state.levelProgress[1]>=100) awardBadge('decomp');
+  if(state.levelProgress[2]>=100) awardBadge('pattern');
+  if(state.levelProgress[3]>=100) awardBadge('abstract');
+  if(state.levelProgress[4]>=100) awardBadge('algo');
+  if([1,2,3,4].every(l=>state.levelProgress[l]>=100)) awardBadge('thinker');
+  if(state.challengeDone) awardBadge('solver');
+  if(Object.keys(state.caseStudiesDone).length>=4) awardBadge('explorer');
+  if(state.projectSubmitted) awardBadge('certified');
+}
+function overallPct(){
+  const lv = Object.values(state.levelProgress).reduce((a,b)=>a+b,0)/4;
+  const cs = Math.min(100,(Object.keys(state.caseStudiesDone).length/8)*100);
+  const ch = state.challengeDone?100:0;
+  const pj = state.projectSubmitted?100:0;
+  return Math.round(lv*0.4 + cs*0.2 + ch*0.15 + pj*0.25);
+}
+function updateTopbar(){
+  document.getElementById('xp-count').textContent = state.xp;
+  document.getElementById('streak-count').textContent = state.streak;
+  document.getElementById('rank-label').textContent = rankName(state.xp);
+  document.getElementById('student-name-label').textContent = state.studentName;
+  document.getElementById('av-initial').textContent = (state.studentName||'S').charAt(0).toUpperCase();
+  document.getElementById('hero-name').textContent = state.studentName;
+}
+function toast(msg){
+  const w = document.getElementById('toast-wrap');
+  const t = document.createElement('div'); t.className='toast'; t.textContent = msg;
+  w.appendChild(t); setTimeout(()=>t.remove(), 3400);
+}
+
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
+  const pct = overallPct();
+  document.getElementById('hero-pbar').style.width = pct+'%';
+  document.getElementById('hero-pct').textContent = pct+'%';
+  document.getElementById('stat-activities').textContent = state.activitiesCompleted;
+  document.getElementById('stat-levels').textContent = Object.values(state.levelProgress).filter(v=>v>=100).length+'/4';
+  document.getElementById('stat-cases').textContent = Object.keys(state.caseStudiesDone).length+'/8';
+  document.getElementById('stat-badges').textContent = state.badges.length+'/8';
+
+  const br = document.getElementById('badge-row'); br.innerHTML='';
+  BADGES.forEach(b=>{
+    const earned = state.badges.includes(b.id);
+    br.innerHTML += `<div class="badge-pod ${earned?'earned':''}" title="${b.req}"><span class="em">${b.em}</span><span class="nm">${b.name}</span></div>`;
+  });
+
+  const cont = document.getElementById('continue-box');
+  const nextLv = [1,2,3,4].find(l=>state.levelProgress[l]<100);
+  if(nextLv){
+    const L = LEVELS[nextLv];
+    cont.innerHTML = `<p><strong>${L.icon} ${L.name}</strong> — ${state.levelProgress[nextLv]}% complete.<br>${L.tagline}</p>`;
+  } else {
+    cont.innerHTML = `<p>🎉 All four levels complete! Head to the <strong>Case Studies</strong>, <strong>Challenge</strong> or <strong>Project</strong> to keep going.</p>`;
+  }
+}
+
+/* ================= JOURNEY MAP (SVG) ================= */
+function renderJourneyMap(){
+  const svg = document.getElementById('journey-svg');
+  const nodesX = [90, 320, 550, 780];
+  const y = 95;
+  let path = `M ${nodesX[0]} ${y}`;
+  for(let i=1;i<nodesX.length;i++){
+    const midX = (nodesX[i-1]+nodesX[i])/2;
+    path += ` C ${midX} ${y-40}, ${midX} ${y+40}, ${nodesX[i]} ${y}`;
+  }
+  const doneCount = [1,2,3,4].filter(l=>state.levelProgress[l]>=100).length;
+  let html = `<path d="${path}" fill="none" stroke="var(--line-strong)" stroke-width="6" stroke-linecap="round"/>`;
+  html += `<path d="${path}" fill="none" stroke="url(#gradTrace)" stroke-width="6" stroke-linecap="round"
+             stroke-dasharray="900" stroke-dashoffset="${900 - (900*(doneCount/4))}" style="transition:stroke-dashoffset .6s;"/>`;
+  html += `<defs><linearGradient id="gradTrace" x1="0" y1="0" x2="1" y2="0">
+             <stop offset="0%" stop-color="var(--decomp)"/><stop offset="35%" stop-color="var(--pattern)"/>
+             <stop offset="65%" stop-color="var(--abstract)"/><stop offset="100%" stop-color="var(--algo)"/></linearGradient></defs>`;
+
+  [1,2,3,4].forEach((lv,i)=>{
+    const L = LEVELS[lv]; const x = nodesX[i];
+    const pct = state.levelProgress[lv]||0;
+    const complete = pct>=100;
+    const locked = lv>1 && state.levelProgress[lv-1] < 100 && pct===0;
+    html += `<g class="chip-node" onclick="openLevel(${lv})" transform="translate(${x},${y})">
+      <rect class="body" x="-46" y="-40" width="92" height="80" rx="16"
+        fill="${complete? L.color : 'var(--bg-alt)'}" stroke="${L.color}" stroke-width="2.5" opacity="${locked?0.55:1}"/>
+      ${[-30,-15,0,15,30].map(px=>`<line x1="${px}" y1="-40" x2="${px}" y2="-46" stroke="${L.color}" stroke-width="2.5"/><line x1="${px}" y1="40" x2="${px}" y2="46" stroke="${L.color}" stroke-width="2.5"/>`).join('')}
+      <text x="0" y="-8" text-anchor="middle" font-size="22">${locked?'🔒':L.icon}</text>
+      <text x="0" y="14" text-anchor="middle" class="chip-label" font-size="11" fill="${complete?'#fff':'var(--ink)'}">${complete?'DONE':pct+'%'}</text>
+      <text x="0" y="62" text-anchor="middle" class="chip-sub" font-size="12" fill="var(--ink-soft)">${L.name}</text>
+    </g>`;
+  });
+  svg.innerHTML = html;
+}
+
+/* ================= LEVEL SHELL ================= */
+function openLevel(lv, silent){
+  currentLevel = lv; currentSub='concept';
+  document.querySelectorAll('.level-tab').forEach(t=>{
+    const on = Number(t.dataset.lv)===lv; t.classList.toggle('on', on);
+  });
+  renderLevelContent();
+  if(!silent){ document.getElementById('level-content').scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+function renderLevelContent(){
+  const lv = currentLevel; const L = LEVELS[lv];
+  const subs = lv===1 ? ['concept','activity','quiz'] : lv===2 ? ['concept','game','quiz'] : lv===3 ? ['concept','activity','quiz'] : ['concept','steps','flowchart','quiz'];
+  const labelMap = {concept:'📖 Concept', activity:'🧲 Activity', quiz:'📝 Quiz', game:'🎮 Find the Pattern', steps:'🔢 Order the Steps', flowchart:'🔀 Build a Flowchart'};
+  let html = `<div class="card" style="border-top:4px solid ${L.color};">
+    <span class="eyebrow" style="color:${L.ink}">Level ${lv}</span>
+    <h2>${L.icon} ${L.name}</h2>
+    <p>${L.tagline}</p>
+    <div class="subtabs">${subs.map(s=>`<button class="subtab ${currentSub===s?'on':''}" onclick="switchSub('${s}')">${labelMap[s]}</button>`).join('')}</div>
+    <div id="sub-body"></div>
+  </div>`;
+  document.getElementById('level-content').innerHTML = html;
+  renderSub();
+}
+function switchSub(s){ currentSub = s; renderLevelContent(); }
+function renderSub(){
+  const body = document.getElementById('sub-body');
+  const lv = currentLevel;
+  if(currentSub==='concept') return body.innerHTML = conceptHTML(lv);
+  if(lv===1 && currentSub==='activity') return renderDND(body);
+  if(lv===1 && currentSub==='quiz') return renderQuiz(body, L1_QUIZ, ()=>completeLevelPiece(1,'quiz'));
+  if(lv===2 && currentSub==='game') return renderPatternGame(body);
+  if(lv===2 && currentSub==='quiz') return renderQuiz(body, L2_QUIZ, ()=>completeLevelPiece(2,'quiz'));
+  if(lv===3 && currentSub==='activity') return renderAbstractAct(body);
+  if(lv===3 && currentSub==='quiz') return renderQuiz(body, L3_QUIZ, ()=>completeLevelPiece(3,'quiz'));
+  if(lv===4 && currentSub==='steps') return renderSeq(body);
+  if(lv===4 && currentSub==='flowchart') return renderFlowchart(body);
+  if(lv===4 && currentSub==='quiz') return renderQuiz(body, L4_QUIZ, ()=>completeLevelPiece(4,'quiz'));
+}
+function completeLevelPiece(lv, piece){
+  if(state.levelPieces[lv][piece]) return; // already done, no double XP
+  state.levelPieces[lv][piece] = true;
+  const totalPieces = Object.keys(state.levelPieces[lv]).length;
+  const doneCount = Object.values(state.levelPieces[lv]).filter(Boolean).length;
+  state.levelProgress[lv] = Math.round((doneCount/totalPieces)*100);
+  addXP(piece==='quiz'?20:15, LEVELS[lv].name+' — '+piece);
+  renderJourneyMap(); renderLevelContent();
+  if(state.levelProgress[lv]>=100){ toast('✅ Level '+lv+' — '+LEVELS[lv].name+' complete!'); }
+}
+function conceptHTML(lv){
+  const map = {
+    1:`<div class="concept-box" style="background:var(--decomp-soft); color:var(--decomp-ink);">
+        <h3 style="color:inherit;">🧩 What is Decomposition?</h3>
+        <p style="color:inherit;">Decomposition means breaking a big, complicated problem into smaller, easier-to-handle pieces. Instead of staring at one huge task, you split it into parts you can actually start working on.</p>
+       </div>
+       <div class="example-box" style="border-color:var(--decomp);">
+        <strong>Everyday example:</strong> Cooking fried rice (nasi goreng) is really several smaller jobs: prepare ingredients → cook the rice → fry the seasonings → combine everything → plate it. Nobody thinks "cook fried rice" as one single unbreakable action.
+       </div>
+       <div class="example-box" style="border-color:var(--decomp);">
+        <strong>In computing:</strong> A big app like an online shop is decomposed into smaller systems: product catalog, shopping cart, payment, and delivery tracking — each built and tested separately.
+       </div>`,
+    2:`<div class="concept-box" style="background:var(--pattern-soft); color:var(--pattern-ink);">
+        <h3 style="color:inherit;">🔍 What is Pattern Recognition?</h3>
+        <p style="color:inherit;">Pattern Recognition means noticing similarities, trends, or things that repeat — in numbers, images, schedules, or everyday events — so you can predict what happens next or reuse a known solution.</p>
+       </div>
+       <div class="example-box" style="border-color:var(--pattern);">
+        <strong>Number pattern:</strong> 2, 4, 6, 8, ... — each number increases by 2.
+       </div>
+       <div class="example-box" style="border-color:var(--pattern);">
+        <strong>Everyday pattern:</strong> The canteen queue is always longest right at 12:00, and shorter by 12:20. Once you see that pattern, you can plan to arrive later.
+       </div>
+       <div class="example-box" style="border-color:var(--pattern);">
+        <strong>Data pattern:</strong> Electricity bills spike every month the air conditioner runs longer — a pattern that helps explain cost.
+       </div>`,
+    3:`<div class="concept-box" style="background:var(--abstract-soft); color:var(--abstract-ink);">
+        <h3 style="color:inherit;">🎯 What is Abstraction?</h3>
+        <p style="color:inherit;">Abstraction means removing information that is not important for your current goal, and keeping only what truly matters. It reduces complexity so you can focus on the essentials.</p>
+       </div>
+       <div class="example-box" style="border-color:var(--abstract);">
+        <strong>Map example:</strong> A subway map does not show real streets, buildings or distances accurately — it only shows stations, lines and connections, because that's all a rider needs.
+       </div>
+       <div class="example-box" style="border-color:var(--abstract);">
+        <strong>Shopping list:</strong> You write "milk, eggs, bread" — not the brand history or nutrition label of every product. Only what you need to buy matters.
+       </div>
+       <div class="example-box" style="border-color:var(--abstract);">
+        <strong>School schedule:</strong> Shows subject, time, and room — not the teacher's biography or the classroom's paint color.
+       </div>`,
+    4:`<div class="concept-box" style="background:var(--algo-soft); color:var(--algo-ink);">
+        <h3 style="color:inherit;">⚙️ What is an Algorithm?</h3>
+        <p style="color:inherit;">An algorithm is a set of clear, ordered steps that leads to a solution or completes a task. Good algorithms are precise, in the right order, and eventually finish.</p>
+       </div>
+       <div class="example-box" style="border-color:var(--algo);">
+        <strong>Everyday algorithm — Making tea:</strong><br>
+        1. Boil water &nbsp;2. Put a tea bag in a cup &nbsp;3. Pour hot water over the tea bag &nbsp;4. Wait 3 minutes &nbsp;5. Remove the tea bag &nbsp;6. Add sugar if desired
+       </div>
+       <div class="example-box" style="border-color:var(--algo);">
+        <strong>Pseudocode example:</strong><br><code class="mono">START<br>&nbsp;&nbsp;INPUT number<br>&nbsp;&nbsp;IF number % 2 == 0 THEN<br>&nbsp;&nbsp;&nbsp;&nbsp;PRINT "Even"<br>&nbsp;&nbsp;ELSE<br>&nbsp;&nbsp;&nbsp;&nbsp;PRINT "Odd"<br>END</code>
+       </div>
+       <div class="legend-row">
+        <div class="legend-item"><span class="fc-shape start" style="padding:4px 10px;">Start/End</span> Oval</div>
+        <div class="legend-item"><span class="fc-shape process" style="padding:4px 10px;">Process</span> Rectangle</div>
+        <div class="legend-item"><span class="fc-shape io" style="padding:4px 14px;">Input/Output</span> Parallelogram</div>
+        <div class="legend-item"><span class="fc-shape decision" style="padding:4px 10px;">Decision</span> Diamond</div>
+        <div class="legend-item">➡️ Flow line = Arrow</div>
+       </div>`
+  };
+  return map[lv];
+}
+
+/* ================= L1 DRAG & DROP ================= */
+function renderDND(body){
+  body.innerHTML = `<h3>${L1_DND.title}</h3><p>${L1_DND.intro}</p>
+    <div class="dnd-pool" id="dnd-pool"></div>
+    <div class="dnd-zones" id="dnd-zones"></div>
+    <div style="margin-top:14px; display:flex; gap:10px; align-items:center;">
+      <button class="btn accent" onclick="checkDND()">Check my sorting</button>
+      <span id="dnd-result" style="font-weight:700; font-size:13px;"></span>
+    </div>`;
+  const pool = document.getElementById('dnd-pool');
+  const shuffled = [...L1_DND.items].sort(()=>Math.random()-.5);
+  shuffled.forEach(it=>{
+    const el = document.createElement('div'); el.className='dnd-item'; el.draggable=true; el.textContent=it.text;
+    el.dataset.id = it.id; el.dataset.zone='';
+    el.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', it.id); el.classList.add('dragging'); });
+    el.addEventListener('dragend', ()=> el.classList.remove('dragging'));
+    pool.appendChild(el);
+  });
+  const zonesWrap = document.getElementById('dnd-zones');
+  L1_DND.zones.forEach(z=>{
+    const zd = document.createElement('div'); zd.className='dnd-zone'; zd.dataset.zone=z.id;
+    zd.innerHTML = `<h4>${z.label}</h4><div class="items"></div>`;
+    zd.addEventListener('dragover', e=>{ e.preventDefault(); zd.classList.add('hover'); });
+    zd.addEventListener('dragleave', ()=> zd.classList.remove('hover'));
+    zd.addEventListener('drop', e=>{
+      e.preventDefault(); zd.classList.remove('hover');
+      const id = e.dataTransfer.getData('text/plain');
+      const item = document.querySelector(`.dnd-item[data-id="${id}"]`);
+      if(item){ zd.querySelector('.items').appendChild(item); item.dataset.zone = z.id; }
+    });
+    zonesWrap.appendChild(zd);
+  });
+  const poolZone = pool;
+  poolZone.addEventListener('dragover', e=>e.preventDefault());
+  poolZone.addEventListener('drop', e=>{
+    e.preventDefault(); const id = e.dataTransfer.getData('text/plain');
+    const item = document.querySelector(`.dnd-item[data-id="${id}"]`);
+    if(item){ poolZone.appendChild(item); item.dataset.zone=''; }
+  });
+}
+function checkDND(){
+  let correct=0, placed=0;
+  L1_DND.items.forEach(it=>{
+    const el = document.querySelector(`.dnd-item[data-id="${it.id}"]`);
+    if(!el) return;
+    el.classList.remove('correct-flash','wrong-flash');
+    if(el.dataset.zone){ placed++;
+      if(el.dataset.zone===it.zone){ el.classList.add('correct-flash'); correct++; }
+      else{ el.classList.add('wrong-flash'); }
+    }
+  });
+  const res = document.getElementById('dnd-result');
+  if(placed < L1_DND.items.length){ res.style.color='var(--decomp-ink)'; res.textContent = `Place all ${L1_DND.items.length} items first (${placed} placed).`; return; }
+  res.style.color = correct===L1_DND.items.length ? 'var(--success)' : 'var(--danger)';
+  res.textContent = `${correct}/${L1_DND.items.length} correct.`;
+  if(correct===L1_DND.items.length) completeLevelPiece(1,'dnd');
+}
+
+/* ================= L2 PATTERN GAME ================= */
+let gameRound=0, gameScore=0;
+function renderPatternGame(body){
+  gameRound=0; gameScore=0; nextRound(body);
+}
+function nextRound(body){
+  body = body || document.getElementById('sub-body');
+  if(gameRound >= L2_FIND.rounds.length){
+    body.innerHTML = `<div class="card" style="background:var(--pattern-soft); text-align:center;">
+      <h3 style="color:var(--pattern-ink);">🎉 Round complete!</h3>
+      <p style="color:var(--pattern-ink);">You scored ${gameScore}/${L2_FIND.rounds.length}.</p>
+      <button class="btn accent" onclick="renderPatternGame(document.getElementById('sub-body'))">Play again</button>
+    </div>`;
+    completeLevelPiece(2,'game');
+    return;
+  }
+  const r = L2_FIND.rounds[gameRound];
+  body.innerHTML = `<p><span class="badge-tag ${r.diff}">${r.diff}</span> Round ${gameRound+1}/${L2_FIND.rounds.length} · Score: ${gameScore}</p>
+    <div class="pattern-seq">${r.seq.map(s=>`<div class="cell ${s==='?'?'blank':''}">${s}</div>`).join('<span>→</span>')}</div>
+    <div class="pattern-choices" id="pat-choices"></div>
+    <p id="pat-fb" style="font-weight:700; margin-top:10px;"></p>`;
+  const cc = document.getElementById('pat-choices');
+  const shuffled = [...r.choices].sort(()=>Math.random()-.5);
+  shuffled.forEach(c=>{
+    const b = document.createElement('button');
+    b.textContent = c;
+    b.onclick = ()=>{
+      const fb = document.getElementById('pat-fb');
+      if(c===r.correct){ gameScore++; fb.style.color='var(--success)'; fb.textContent='✅ Correct! '+r.rule; }
+      else{ fb.style.color='var(--danger)'; fb.textContent='❌ Not quite. Rule: '+r.rule; }
+      Array.from(cc.children).forEach(x=>x.disabled=true);
+      setTimeout(()=>{ gameRound++; nextRound(document.getElementById('sub-body')); }, 1400);
+    };
+    cc.appendChild(b);
+  });
+}
+
+/* ================= L3 ABSTRACTION ACTIVITY ================= */
+function renderAbstractAct(body){
+  body.innerHTML = `<h3>What Information Matters?</h3>
+    <div class="example-box" style="border-color:var(--abstract);"><strong>Scenario:</strong> ${L3_ACT.scenario}</div>
+    <p>${L3_ACT.intro}</p>
+    <div id="abs-list"></div>
+    <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+      <button class="btn accent" onclick="checkAbstract()">Check my answers</button>
+      <span id="abs-result" style="font-weight:700; font-size:13px;"></span>
+    </div>`;
+  const list = document.getElementById('abs-list');
+  L3_ACT.items.forEach((it,i)=>{
+    const d = document.createElement('div');
+    d.className='checklist-item'; d.dataset.i=i; d.dataset.picked='false';
+    d.innerHTML = `<span style="font-size:16px;">⬜</span><span>${it.text}</span>`;
+    d.onclick = ()=>{
+      const picked = d.dataset.picked==='true';
+      d.dataset.picked = (!picked).toString();
+      d.classList.toggle('picked', !picked);
+      d.querySelector('span').textContent = !picked ? '✅':'⬜';
+    };
+    list.appendChild(d);
+  });
+}
+function checkAbstract(){
+  let correct=0;
+  document.querySelectorAll('#abs-list .checklist-item').forEach(d=>{
+    const i = Number(d.dataset.i); const picked = d.dataset.picked==='true';
+    const it = L3_ACT.items[i];
+    d.classList.remove('ok','bad');
+    let fb = d.querySelector('.fb'); if(fb) fb.remove();
+    const rightChoice = picked===it.keep;
+    d.classList.add(rightChoice?'ok':'bad');
+    if(rightChoice) correct++;
+    const f = document.createElement('div'); f.className='fb'; f.style.cssText='font-size:11.5px; margin-top:4px; opacity:.8;';
+    f.textContent = (it.keep?'Keep: ':'Discard: ')+it.why;
+    d.appendChild(f);
+  });
+  const res = document.getElementById('abs-result');
+  res.style.color = correct===L3_ACT.items.length ? 'var(--success)' : 'var(--danger)';
+  res.textContent = `${correct}/${L3_ACT.items.length} correct.`;
+  if(correct >= L3_ACT.items.length-1) completeLevelPiece(3,'act');
+}
+
+/* ================= L4 SEQUENCE ================= */
+function renderSeq(body){
+  body.innerHTML = `<h3>${L4_SEQ.title}</h3><p>Drag to reorder the steps, then check.</p>
+    <ul class="seq-list" id="seq-list"></ul>
+    <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+      <button class="btn accent" onclick="checkSeq()">Check order</button>
+      <span id="seq-result" style="font-weight:700; font-size:13px;"></span>
+    </div>`;
+  const list = document.getElementById('seq-list');
+  const shuffled = [...L4_SEQ.steps].sort(()=>Math.random()-.5);
+  shuffled.forEach(s=>{
+    const li = document.createElement('li'); li.className='seq-item'; li.draggable=true; li.dataset.id=s.id;
+    li.innerHTML = `<span class="num">⠿</span><span>${s.text}</span>`;
+    li.addEventListener('dragstart', ()=> li.classList.add('dragging'));
+    li.addEventListener('dragend', ()=> li.classList.remove('dragging'));
+    list.appendChild(li);
+  });
+  list.addEventListener('dragover', e=>{
+    e.preventDefault();
+    const dragging = list.querySelector('.dragging');
+    const after = [...list.querySelectorAll('.seq-item:not(.dragging)')].find(el=> e.clientY <= el.getBoundingClientRect().top + el.offsetHeight/2);
+    if(after) list.insertBefore(dragging, after); else list.appendChild(dragging);
+  });
+  numberSeq();
+  new MutationObserver(numberSeq).observe(list,{childList:true});
+}
+function numberSeq(){
+  document.querySelectorAll('#seq-list .seq-item .num').forEach((el,i)=> el.textContent = i+1);
+}
+function checkSeq(){
+  const ids = [...document.querySelectorAll('#seq-list .seq-item')].map(li=>li.dataset.id);
+  const correct = ids.every((id,i)=> id===L4_SEQ.correctOrder[i]);
+  const res = document.getElementById('seq-result');
+  res.style.color = correct ? 'var(--success)':'var(--danger)';
+  res.textContent = correct ? '✅ Perfect order!' : '❌ Not quite in order yet — try again.';
+  if(correct) completeLevelPiece(4,'seq');
+}
+
+/* ================= L4 FLOWCHART BUILDER ================= */
+let fcChain = [];
+function renderFlowchart(body){
+  fcChain = [];
+  body.innerHTML = `<h3>${L4_FC.title}</h3><p>Click symbols in the palette to build your flowchart chain in order.</p>
+    <div class="fc-palette" id="fc-palette"></div>
+    <div class="fc-chain" id="fc-chain"></div>
+    <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+      <button class="btn soft sm" onclick="fcChain=[]; drawChain();">Reset</button>
+      <button class="btn accent" onclick="checkFlowchart()">Check my flowchart</button>
+      <span id="fc-result" style="font-weight:700; font-size:13px;"></span>
+    </div>`;
+  const pal = document.getElementById('fc-palette');
+  const order = [...L4_FC.palette];
+  order.forEach(p=>{
+    const b = document.createElement('button'); b.className='fc-piece';
+    b.innerHTML = `<span class="fc-shape ${p.type}" style="padding:4px 10px; font-size:11px;">${p.type}</span> ${p.label}`;
+    b.onclick = ()=>{ fcChain.push(p); drawChain(); };
+    pal.appendChild(b);
+  });
+  drawChain();
+}
+function drawChain(){
+  const c = document.getElementById('fc-chain');
+  if(!c) return;
+  if(fcChain.length===0){ c.innerHTML = '<span style="color:var(--ink-faint); font-size:13px;">Click palette pieces above to build your chain here.</span>'; return; }
+  c.innerHTML = fcChain.map((p,i)=> `<div class="fc-shape ${p.type}">${p.label}</div>` + (i<fcChain.length-1?'<div class="fc-arrow">⬇</div>':'')).join('');
+}
+function checkFlowchart(){
+  const chainTypes = fcChain.map(p=>p.type);
+  const correct = chainTypes.length===L4_FC.correctChain.length && chainTypes.every((t,i)=>t===L4_FC.correctChain[i]);
+  const res = document.getElementById('fc-result');
+  res.style.color = correct?'var(--success)':'var(--danger)';
+  res.textContent = correct ? '✅ Correct flow! '+L4_FC.explanation : '❌ Not quite — remember: Start → Input → Decision → Process → End.';
+  if(correct) completeLevelPiece(4,'fc');
+}
+
+/* ================= GENERIC QUIZ ENGINE ================= */
+function renderQuiz(body, quiz, onAllComplete){
+  const answered = {};
+  body.innerHTML = `<div id="quiz-list"></div><div style="margin-top:10px;"><span id="quiz-score" style="font-weight:700;"></span></div>`;
+  const list = document.getElementById('quiz-list');
+  quiz.questions.forEach((q,qi)=>{
+    const card = document.createElement('div'); card.className='qcard'; card.dataset.qi=qi;
+    card.innerHTML = `<div class="qhead"><div><strong>Q${qi+1}.</strong> ${q.q}</div><span class="badge-tag ${q.diff}">${q.diff}</span></div>
+      <div class="opts"></div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button class="btn soft sm" onclick="toggleHint(${qi})">💡 Hint</button>
+        <button class="btn accent sm" onclick="submitAnswer(${qi})">Submit answer</button>
+      </div>
+      <div class="hint-box" id="hint-${qi}">${q.hint}</div>
+      <div class="feedback" id="fb-${qi}"></div>`;
+    const opts = card.querySelector('.opts');
+    q.options.forEach((o,oi)=>{
+      const row = document.createElement('label'); row.className='qopt'; row.id=`opt-${qi}-${oi}`;
+      row.innerHTML = `<input type="${q.type==='multi'?'checkbox':'radio'}" name="q${qi}" value="${oi}"> <span>${o}</span>`;
+      row.querySelector('input').addEventListener('change', ()=>{ row.classList.toggle('sel'); });
+      opts.appendChild(row);
+    });
+    list.appendChild(card);
+  });
+  window['toggleHint'] = (qi)=> document.getElementById('hint-'+qi).classList.toggle('show');
+  window['submitAnswer'] = (qi)=>{
+    const q = quiz.questions[qi];
+    const inputs = [...document.querySelectorAll(`input[name="q${qi}"]:checked`)].map(i=>Number(i.value));
+    if(inputs.length===0){ toast('Pick an answer first.'); return; }
+    const correctSet = q.correct.slice().sort().join(',');
+    const chosenSet = inputs.slice().sort().join(',');
+    const right = correctSet===chosenSet;
+    q.options.forEach((o,oi)=>{
+      const row = document.getElementById(`opt-${qi}-${oi}`);
+      row.classList.remove('ok','bad');
+      if(q.correct.includes(oi)) row.classList.add('ok');
+      else if(inputs.includes(oi)) row.classList.add('bad');
+    });
+    const fb = document.getElementById('fb-'+qi);
+    fb.className = 'feedback show ' + (right?'good':'bad');
+    fb.textContent = right ? '✅ Correct! Nice thinking.' : '❌ Not quite — correct answer(s) highlighted in green. Try the next question!';
+    answered[qi] = right;
+    document.getElementById('quiz-score').textContent = `Answered: ${Object.keys(answered).length}/${quiz.questions.length} · Correct: ${Object.values(answered).filter(Boolean).length}`;
+    if(Object.keys(answered).length === quiz.questions.length){
+      onAllComplete && onAllComplete();
+    }
+  };
+}
+
+/* ================= CASE STUDIES ================= */
+let currentCase = null;
+function renderCaseStudies(){
+  const grid = document.getElementById('cs-grid'); grid.innerHTML='';
+  CASE_STUDIES.forEach(cs=>{
+    const done = !!state.caseStudiesDone[cs.id];
+    const d = document.createElement('div'); d.className='cs-card'+(done?' done':'');
+    d.onclick = ()=> openCase(cs.id);
+    d.innerHTML = `<span class="ic">${cs.ic}</span><h4 style="margin:8px 0 4px; font-size:14px;">${cs.title}</h4><p style="font-size:12.5px; margin:0;">${cs.blurb}</p>${done?'<div style="margin-top:8px; color:var(--success); font-weight:700; font-size:12px;">✅ Completed</div>':''}`;
+    grid.appendChild(d);
+  });
+}
+function openCase(id){
+  currentCase = CASE_STUDIES.find(c=>c.id===id);
+  const det = document.getElementById('cs-detail');
+  const saved = state.caseStudiesDone[id] || {};
+  det.innerHTML = `<div class="card" style="border-top:4px solid var(--algo);">
+    <h2>${currentCase.ic} ${currentCase.title}</h2>
+    <div class="grid cols-2">
+      <div><label class="flabel" style="color:var(--decomp-ink);">🧩 Decomposition</label><p style="margin-top:0;">${currentCase.decompQ}</p><textarea id="cs-decomp" rows="3">${saved.decomp||''}</textarea></div>
+      <div><label class="flabel" style="color:var(--pattern-ink);">🔍 Pattern Recognition</label><p style="margin-top:0;">${currentCase.patternQ}</p><textarea id="cs-pattern" rows="3">${saved.pattern||''}</textarea></div>
+      <div><label class="flabel" style="color:var(--abstract-ink);">🎯 Abstraction</label><p style="margin-top:0;">${currentCase.abstractQ}</p><textarea id="cs-abstract" rows="3">${saved.abstract||''}</textarea></div>
+      <div><label class="flabel" style="color:var(--algo-ink);">⚙️ Algorithm</label><p style="margin-top:0;">${currentCase.algoQ}</p><textarea id="cs-algo" rows="3">${saved.algo||''}</textarea></div>
+    </div>
+    <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn outline sm" onclick="toggleModel()">💡 Show a model answer</button>
+      <button class="btn accent" onclick="saveCase()">Save & mark complete</button>
+    </div>
+    <div class="model-answer" id="model-answer">${currentCase.model}</div>
+  </div>`;
+  det.scrollIntoView({behavior:'smooth'});
+}
+function toggleModel(){ document.getElementById('model-answer').classList.toggle('show'); }
+function saveCase(){
+  const data = {
+    decomp: document.getElementById('cs-decomp').value,
+    pattern: document.getElementById('cs-pattern').value,
+    abstract: document.getElementById('cs-abstract').value,
+    algo: document.getElementById('cs-algo').value
+  };
+  if(!data.decomp || !data.pattern || !data.abstract || !data.algo){ toast('Fill in all four boxes first.'); return; }
+  const first = !state.caseStudiesDone[currentCase.id];
+  state.caseStudiesDone[currentCase.id] = data;
+  if(first) addXP(30, currentCase.title);
+  else { toast('Updated your answer.'); saveState(); }
+  renderCaseStudies(); checkBadges(); renderDashboard();
+}
+
+/* ================= CHALLENGE ================= */
+let challengeAnswers = {};
+function renderChallenge(){
+  const body = document.getElementById('challenge-body');
+  body.innerHTML = `<div class="card">
+    <div class="example-box" style="border-color:var(--algo);"><strong>The Problem:</strong> ${CHALLENGE.problem}</div>
+    <div class="stepper" id="ch-stepper"></div>
+    <div id="ch-stage-body"></div>
+  </div>`;
+  const stepper = document.getElementById('ch-stepper');
+  CHALLENGE.stages.forEach((s,i)=>{
+    const btn = document.createElement('button'); btn.className='step-dot'; btn.textContent=s.label; btn.id='ch-dot-'+i;
+    btn.onclick = ()=> showChallengeStage(i);
+    stepper.appendChild(btn);
+  });
+  const finalDot = document.createElement('button'); finalDot.className='step-dot'; finalDot.textContent='Decide'; finalDot.id='ch-dot-final';
+  finalDot.onclick = ()=> showChallengeStage('final');
+  stepper.appendChild(finalDot);
+  showChallengeStage(0);
+}
+function showChallengeStage(i){
+  document.querySelectorAll('#ch-stepper .step-dot').forEach(d=>d.classList.remove('on'));
+  const idKey = i==='final' ? 'ch-dot-final' : 'ch-dot-'+i;
+  document.getElementById(idKey).classList.add('on');
+  const wrap = document.getElementById('ch-stage-body');
+  if(i==='final'){
+    wrap.innerHTML = `<h3>🎯 Choose & justify your solution</h3>
+      <p>Based on everything above, which solution would you propose?</p>
+      <div id="ch-options"></div>
+      <label class="flabel" style="margin-top:10px;">Why did you choose this option?</label>
+      <textarea id="ch-justify" rows="3">${challengeAnswers.justify||''}</textarea>
+      <button class="btn accent" style="margin-top:12px;" onclick="finishChallenge()">✅ Submit Challenge</button>`;
+    const opts = document.getElementById('ch-options');
+    CHALLENGE.solutionOptions.forEach((o,oi)=>{
+      const d = document.createElement('div'); d.className='checklist-item'+(challengeAnswers.choice===oi?' picked':'');
+      d.innerHTML = `<span>${challengeAnswers.choice===oi?'🔘':'⚪'}</span><span>${o}</span>`;
+      d.onclick = ()=>{ challengeAnswers.choice = oi; showChallengeStage('final'); };
+      opts.appendChild(d);
+    });
+    return;
+  }
+  const s = CHALLENGE.stages[i];
+  wrap.innerHTML = `<h3>${s.label}</h3><p>${s.prompt}</p>
+    <textarea id="ch-input" rows="3">${challengeAnswers[s.key]||''}</textarea>
+    <div style="margin-top:10px; display:flex; gap:8px;">
+      ${i>0?`<button class="btn soft sm" onclick="saveChallengeStage(${i}); showChallengeStage(${i-1})">← Back</button>`:''}
+      <button class="btn accent sm" onclick="saveChallengeStage(${i}); showChallengeStage(${i<CHALLENGE.stages.length-1? i+1 : "'final'"})">Next →</button>
+    </div>`;
+}
+function saveChallengeStage(i){
+  const s = CHALLENGE.stages[i];
+  challengeAnswers[s.key] = document.getElementById('ch-input').value;
+  document.getElementById('ch-dot-'+i).classList.add('done');
+}
+function finishChallenge(){
+  challengeAnswers.justify = document.getElementById('ch-justify').value;
+  if(challengeAnswers.choice===undefined || !challengeAnswers.justify){ toast('Pick a solution and explain why.'); return; }
+  const wasDone = state.challengeDone;
+  state.challengeDone = true;
+  document.getElementById('ch-dot-final').classList.add('done');
+  if(!wasDone){ addXP(50, 'CT Challenge complete'); toast('🚀 Challenge complete — great problem solving!'); }
+  else saveState();
+  checkBadges();
+}
+
+/* ================= PROJECT ================= */
+const PROJECT_FIELDS = [
+  {key:'problem', label:'1. Explain the Problem', hint:'What real problem (at school, home or your community) are you solving?'},
+  {key:'decomp', label:'2. Decomposition', hint:'Break the problem into smaller parts.'},
+  {key:'pattern', label:'3. Pattern Found', hint:'What pattern(s) did you notice while studying the problem?'},
+  {key:'abstract', label:'4. Abstraction', hint:'What information matters most? What can you leave out?'},
+  {key:'algorithm', label:'5. Algorithm', hint:'Write your solution as clear, ordered steps or pseudocode.'},
+  {key:'flowchart', label:'6. Flowchart Plan', hint:'Describe the flowchart you would draw (symbols and order) for your algorithm.'},
+  {key:'test', label:'7. Test the Solution', hint:'How did you (or would you) test if your solution works?'},
+  {key:'evaluate', label:'8. Evaluate the Results', hint:'What worked? What would you improve?'},
+  {key:'present', label:'9. Presentation Notes', hint:'Summarize what you will say when presenting this project to the class.'}
+];
+function renderProject(){
+  const body = document.getElementById('project-body');
+  body.innerHTML = PROJECT_FIELDS.map((f,i)=> `<div class="proj-section">
+    <h3><span class="proj-num">${i+1}</span>${f.label.replace(/^\\d+\\.\\s/,'')}</h3>
+    <p style="margin:0 0 8px;">${f.hint}</p>
+    <textarea id="pj-${f.key}" rows="3">${state.projectData[f.key]||''}</textarea>
+  </div>`).join('') + `<div style="display:flex; gap:10px; margin-top:6px; flex-wrap:wrap;">
+    <button class="btn soft" onclick="saveProject(false)">💾 Save draft</button>
+    <button class="btn accent" onclick="saveProject(true)">✅ Mark as submitted</button>
+    <button class="btn outline" onclick="downloadProject()">⬇️ Download as text</button>
+  </div>`;
+  renderRubric();
+}
+function collectProject(){
+  const data = {};
+  PROJECT_FIELDS.forEach(f=> data[f.key] = document.getElementById('pj-'+f.key).value);
+  return data;
+}
+function saveProject(submit){
+  state.projectData = collectProject();
+  const filled = PROJECT_FIELDS.filter(f=>state.projectData[f.key] && state.projectData[f.key].trim()).length;
+  if(submit){
+    if(filled < PROJECT_FIELDS.length){ toast('Fill in all 9 sections before submitting.'); return; }
+    const wasDone = state.projectSubmitted;
+    state.projectSubmitted = true;
+    if(!wasDone){ addXP(100, 'Capstone Project submitted'); toast('🎉 Project submitted — amazing work!'); }
+    checkBadges(); renderCertificate();
+  } else {
+    toast('Draft saved.'); saveState();
+  }
+}
+function downloadProject(){
+  const data = collectProject();
+  let txt = 'DESIGN YOUR OWN COMPUTATIONAL SOLUTION\\nStudent: '+state.studentName+'\\n\\n';
+  PROJECT_FIELDS.forEach(f=>{ txt += f.label+'\\n'+(data[f.key]||'(empty)')+'\\n\\n'; });
+  const blob = new Blob([txt], {type:'text/plain'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'CT-Project-'+slug(state.studentName)+'.txt'; a.click();
+}
+const RUBRIC = [
+  {crit:'Understanding the Problem', b:'Problem unclear or missing', d:'Problem stated but vague', p:'Problem clearly explained', e:'Problem explained with context and significance'},
+  {crit:'Decomposition', b:'No clear parts identified', d:'Some parts identified, overlapping', p:'Problem broken into clear, logical parts', e:'Parts are precise, complete, and well justified'},
+  {crit:'Pattern Recognition', b:'No pattern identified', d:'Pattern vague or incorrect', p:'Relevant pattern identified', e:'Insightful pattern clearly linked to the solution'},
+  {crit:'Abstraction', b:'Irrelevant details included throughout', d:'Some irrelevant details remain', p:'Mostly essential information kept', e:'Sharp focus on only what matters'},
+  {crit:'Algorithm', b:'Steps missing or unclear', d:'Steps present but disordered/incomplete', p:'Clear, ordered, workable steps', e:'Precise, efficient, well-structured steps/pseudocode'},
+  {crit:'Creativity', b:'Generic or copied idea', d:'Some original thinking', p:'Original, thoughtful approach', e:'Highly creative, innovative solution'},
+  {crit:'Reasoning', b:'No justification given', d:'Weak justification', p:'Clear reasoning for choices', e:'Strong, well-evidenced reasoning throughout'},
+  {crit:'Collaboration', b:'No evidence of teamwork', d:'Limited collaboration', p:'Good collaboration and communication', e:'Excellent teamwork, clear role sharing'},
+  {crit:'Quality of Solution', b:'Solution incomplete or unworkable', d:'Solution partially addresses problem', p:'Solution addresses the problem well', e:'Solution is polished, effective and testable'}
+];
+function renderRubric(){
+  const t = document.getElementById('rubric-table');
+  t.innerHTML = `<tr><th>Criteria</th><th>Beginning (1)</th><th>Developing (2)</th><th>Proficient (3)</th><th>Exemplary (4)</th></tr>` +
+    RUBRIC.map(r=>`<tr><td><strong>${r.crit}</strong></td><td>${r.b}</td><td>${r.d}</td><td>${r.p}</td><td>${r.e}</td></tr>`).join('');
+}
+
+/* ================= CERTIFICATE ================= */
+function renderCertificate(){
+  const allDone = [1,2,3,4].every(l=>state.levelProgress[l]>=100);
+  const el = document.getElementById('cert-body');
+  if(!allDone){
+    el.innerHTML = `<div class="card" style="text-align:center; padding:40px;">
+      <h2>🔒 Not unlocked yet</h2>
+      <p>Complete all four Learning Journey levels to unlock your Computational Thinking certificate.</p>
+      <button class="btn accent" onclick="go('journey')">Go to Learning Journey →</button>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="cert print-target" id="cert-print">
+    <h2>Certificate of Achievement</h2>
+    <p style="color:var(--ink-faint); font-size:12.5px;">This certifies that</p>
+    <div class="name">${state.studentName}</div>
+    <p>has successfully completed all four levels of<br><strong>Computational Thinking</strong> — Decomposition, Pattern Recognition, Abstraction, and Algorithms —<br>demonstrating critical thinking, creativity, and problem-solving skills.</p>
+    <div class="cert-badges">${state.badges.map(id=>{const b=BADGES.find(x=>x.id===id); return `<span title="${b.name}" style="font-size:26px;">${b.em}</span>`;}).join('')}</div>
+    <p style="font-size:12px; color:var(--ink-faint);">Total XP earned: ${state.xp} · Rank: ${rankName(state.xp)} · Date: ${new Date().toLocaleDateString()}</p>
+  </div>
+  <div style="text-align:center; margin-top:16px;"><button class="btn accent" onclick="printCert()">🖨️ Print / Save as PDF</button></div>`;
+}
+function printCert(){
+  document.getElementById('cert-print').classList.add('print-target');
+  window.print();
+}
+
+/* ================= TEACHER DASHBOARD ================= */
+async function loadTeacherData(){
+  const tbl = document.getElementById('teacher-table');
+  const statsEl = document.getElementById('teacher-stats');
+  tbl.innerHTML = '<tr><th>Loading…</th></tr>';
+  try{
+    const list = await window.storage.list('student:', true);
+    const keys = (list && list.keys) || [];
+    const rows = [];
+    for(const k of keys){
+      try{ const r = await window.storage.get(k, true); if(r && r.value) rows.push(JSON.parse(r.value)); }catch(e){}
+    }
+    window.__teacherRows = rows;
+    if(rows.length===0){
+      tbl.innerHTML = '<tr><th>No student data yet</th></tr>';
+      statsEl.innerHTML = '';
+      return;
+    }
+    const avgXP = Math.round(rows.reduce((a,r)=>a+r.xp,0)/rows.length);
+    const doneAll = rows.filter(r=>r.levels>=4).length;
+    const avgCases = (rows.reduce((a,r)=>a+r.cases,0)/rows.length).toFixed(1);
+    const projDone = rows.filter(r=>r.project).length;
+    statsEl.innerHTML = `
+      <div class="statcard"><div class="num">${rows.length}</div><div class="lbl">Students tracked</div></div>
+      <div class="statcard"><div class="num">${avgXP}</div><div class="lbl">Average XP</div></div>
+      <div class="statcard"><div class="num">${doneAll}/${rows.length}</div><div class="lbl">Finished all 4 levels</div></div>
+      <div class="statcard"><div class="num">${projDone}/${rows.length}</div><div class="lbl">Projects submitted</div></div>`;
+    tbl.innerHTML = `<tr><th>Student</th><th>Rank</th><th>XP</th><th>Levels</th><th>Case Studies</th><th>Challenge</th><th>Project</th><th>Badges</th><th>Updated</th></tr>` +
+      rows.sort((a,b)=>b.xp-a.xp).map(r=>`<tr>
+        <td><strong>${r.name}</strong></td><td>${r.rank}</td><td>${r.xp}</td>
+        <td><span class="mini-bar"><i style="width:${(r.levels/4)*100}%"></i></span>${r.levels}/4</td>
+        <td><span class="mini-bar"><i style="width:${(r.cases/8)*100}%"></i></span>${r.cases}/8</td>
+        <td>${r.challenge?'✅':'—'}</td><td>${r.project?'✅':'—'}</td><td>${r.badges}/8</td>
+        <td>${new Date(r.updated).toLocaleDateString()}</td>
+      </tr>`).join('');
+  }catch(e){
+    tbl.innerHTML = '<tr><th>Could not load class data right now.</th></tr>';
+  }
+}
+function exportCSV(){
+  const rows = window.__teacherRows || [];
+  if(rows.length===0){ toast('No data to export yet.'); return; }
+  let csv = 'Name,Rank,XP,Levels,CaseStudies,Challenge,Project,Badges,Updated\\n';
+  rows.forEach(r=>{ csv += `${r.name},${r.rank},${r.xp},${r.levels}/4,${r.cases}/8,${r.challenge},${r.project},${r.badges}/8,${r.updated}\\n`; });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='ct-class-progress.csv'; a.click();
+}
+
+init();
+</script>
+</body>
+</html>
