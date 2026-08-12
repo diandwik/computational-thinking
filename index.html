@@ -390,7 +390,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
   <aside class="sidebar" id="sidebar">
     <div class="brand">
       <div class="brand-mark">CT</div>
-      <div class="brand-text">Computational<br>Thinking<span>Informatics · Fase D</span></div>
+      <div class="brand-text">Computational<br>Thinking<span>Informatics | Fase D</span></div>
     </div>
     <div class="navlist">
       <button class="navbtn" data-page="dashboard"><span class="ic">🏠</span>Dashboard</button>
@@ -461,7 +461,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
           </div>
           <div class="card">
             <h3>📍 Where you left off</h3>
-            <div id="continue-box"><p>You haven't started yet — jump into Level 1 to begin your journey!</p></div>
+            <div id="continue-box"><p>You haven't started yet, jump into Level 1 to begin your journey!</p></div>
             <button class="btn accent block" onclick="go('journey')">Continue Journey →</button>
           </div>
         </div>
@@ -471,7 +471,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-journey">
         <span class="eyebrow">Learning Journey</span>
         <h1>Your Computational Thinking Map</h1>
-        <p>Four chips, four powers. Complete each one — activity and quiz — to light up the trace and unlock your badge.</p>
+        <p>Four chips, four powers. Complete each one activity and quiz to light up the trace and unlock your badge.</p>
 
         <div class="map-wrap">
           <svg viewBox="0 0 900 190" style="width:100%; height:auto;" id="journey-svg"></svg>
@@ -523,7 +523,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-results">
         <span class="eyebrow">My Results</span>
         <h1>📊 My Learning Results</h1>
-        <p>A snapshot of your Computational Thinking journey — download it as an image and show it off!</p>
+        <p>A snapshot of your Computational Thinking journey, download it as an image and show it off!</p>
         <div id="results-body"></div>
       </section>
 
@@ -531,7 +531,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-teacher">
         <span class="eyebrow">Educator Tools</span>
         <h1>Teacher Dashboard</h1>
-        <p>See how the whole class is progressing. This view reads shared progress snapshots saved by every student using this page on this device/browser network — <strong>student names and scores here are visible to anyone using this app</strong>.</p>
+        <p>See how the whole class is progressing. This view reads shared progress snapshots saved by every student using this page on this device/browser network, <strong>student names and scores here are visible to anyone using this app</strong>.</p>
         <div class="grid cols-4" id="teacher-stats" style="margin:18px 0;"></div>
         <div style="display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
           <button class="btn accent sm" onclick="loadTeacherData()">🔄 Refresh class data</button>
@@ -709,9 +709,9 @@ const CASE_STUDIES = [
   {id:'canteen', ic:'🍽️', title:'Canteen Queue System', blurb:'Design a fairer, faster way to serve students at lunchtime.',
    decompQ:'What are the separate parts of the canteen queue problem (ordering, payment, food prep, seating)?',
    patternQ:'When is the canteen busiest, and why does that pattern happen?',
-   abstractQ:'What matters most for a fair, fast queue system — and what can be ignored?',
+   abstractQ:'What matters most for a fair, fast queue system and what can be ignored?',
    algoQ:'Write the steps for a new queue system (e.g. class-based time slots).',
-   model:'Decompose into ordering/payment/prep/seating. Pattern: rush at 12:00–12:20 when most classes break together. Abstraction: focus on wait time & fairness, ignore menu design. Algorithm: staggered class entry times, numbered tickets, prep food in batches ahead of peak.'},
+   model:'Decompose into ordering/payment/prep/seating. Pattern: rush at 09:00-10:00 when most classes break together. Abstraction: focus on wait time & fairness, ignore menu design. Algorithm: staggered class entry times, numbered tickets, prep food in batches ahead of peak.'},
   {id:'waste', ic:'♻️', title:'Managing School Waste', blurb:'Reduce, sort and manage rubbish around the school more effectively.',
    decompQ:'Break down "school waste problem" into parts (types of waste, collection points, disposal, recycling).',
    patternQ:'What pattern do you notice about when/where the most waste is produced?',
