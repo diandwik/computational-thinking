@@ -508,7 +508,7 @@ th{color:var(--ink-faint); font-size:11px; text-transform:uppercase; letter-spac
       <section class="page" id="page-project">
         <span class="eyebrow">Capstone Project</span>
         <h1>🛠️ Design Your Own Computational Solution</h1>
-        <p>Choose a real problem from your school, home, or community. Fill in every stage below — this is your digital project template.</p>
+        <p>Choose a real problem from your school, home, or community. Fill in every stage below, this is your digital project template.</p>
         <div id="project-body"></div>
         <div class="card" style="margin-top:10px;">
           <h3>📋 Project Rubric</h3>
@@ -640,19 +640,19 @@ const L3_ACT = {
   scenario:'Your friend is visiting your city and only has 2 hours before their train leaves. You want to give them directions to the nearest famous landmark.',
   intro:'Tap each piece of information: keep it if it MATTERS for this specific goal, discard it if it is unnecessary detail.',
   items:[
-    {text:'The exact walking route with street names', keep:true, why:'Essential — they need to know exactly how to get there.'},
-    {text:'The landmark\'s opening and closing hours', keep:true, why:'Essential — no point going if it is closed.'},
+    {text:'The exact walking route with street names', keep:true, why:'Essential; they need to know exactly how to get there.'},
+    {text:'The landmark\'s opening and closing hours', keep:true, why:'Essential; no point going if it is closed.'},
     {text:'The history of who built the landmark 200 years ago', keep:false, why:'Interesting, but not needed to catch a train in 2 hours.'},
     {text:'How long the walk takes', keep:true, why:'Essential — they must fit it inside 2 hours.'},
     {text:'The average annual rainfall of the city', keep:false, why:'Irrelevant to this specific goal.'},
     {text:'The nearest public restroom location', keep:true, why:'Practically useful for a short visit.'},
     {text:'The mayor\'s full biography', keep:false, why:'Not related to visiting a landmark quickly.'},
-    {text:'The cost of the train ticket they already bought', keep:false, why:'Already known/decided — not needed for this direction-giving task.'}
+    {text:'The cost of the train ticket they already bought', keep:false, why:'Already known/decided, not needed for this direction-giving task.'}
   ]
 };
 const L3_QUIZ = {
   questions:[
-    {type:'mcq', diff:'easy', q:'Abstraction means...', options:['Adding as much detail as possible','Keeping only the information that matters for your goal, and ignoring the rest','Breaking a task into smaller tasks','Finding repeating patterns'], correct:[1], hint:'Think about a subway map — simplified on purpose.'},
+    {type:'mcq', diff:'easy', q:'Abstraction means...', options:['Adding as much detail as possible','Keeping only the information that matters for your goal, and ignoring the rest','Breaking a task into smaller tasks','Finding repeating patterns'], correct:[1], hint:'Think about a subway map, simplified on purpose.'},
     {type:'multi', diff:'medium', q:'Which of these are good examples of abstraction? (choose all that apply)', options:['A subway map that shows only stations and lines, not real geography','A shopping list that only lists items to buy, not their nutrition facts','A weather report that includes every historical weather record ever recorded','A class schedule that shows subject, time and room — not the teacher\'s home address'], correct:[0,1,3], hint:'Good abstraction removes noise that does not help the specific purpose.'},
     {type:'mcq', diff:'medium', q:'A bus route map for passengers usually leaves out...', options:['Stop names','The order of stops','Exact road curvature and every building along the way','Line colors'], correct:[2], hint:'Passengers need to know stops and order, not architectural detail.'},
     {type:'mcq', diff:'hard', q:'When designing a school attendance app, which detail is LEAST important to track?', options:['Student name','Whether the student is present or absent','Date of the class','The student\'s favorite color'], correct:[3], hint:'Ask: does this detail help the app do its job?'},
